@@ -6,14 +6,15 @@ import pymysql.cursors
 import struct
 import textwrap
 
+
 def main():
 
-	mateo = pymysql.connect(user='root', password='123456789',host='mydbdiseno2.crn0fxtqoene.us-east-1.rds.amazonaws.com', database='dbsyrus')
+    mateo = pymysql.connect(user='root', password='123456789',
+                            host='mydbdiseno2.crn0fxtqoene.us-east-1.rds.amazonaws.com', database='dbsyrus')
 
 	cursor = mateo.cursor()
 
 	insertar = ("INSERT INTO syrus" "(latitud, longitud, hora)" "VALUES (%s, %s, %s)")
-
 
 	conn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	conn.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
@@ -44,7 +45,6 @@ def main():
 				H = int(segundos / (60 * 60))
 				M = int((segundos/60)-(H*60))
 				S = int(segundos - (H*60*60) - (M*60))
-
 
 			fecha = fecha.strftime('%m/%d/%Y')
 

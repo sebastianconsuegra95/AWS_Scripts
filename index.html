@@ -48,7 +48,7 @@
         }
         var longElement = document.getElementById("test"); // Voy a mostrar un texto en donde esté el id "Latitud"
         var data = infodb.split("\n")
-        longElement.textContent = "Latitud: " + data[0] + " Longitud: " + data[1] + " Fecha y Hora: " + data[2];
+        longElement.textContent = "Latitud hol: " + data[0] + " Longitud: " + data[1] + " Fecha y Hora: " + data[2];
         var uluru = { lat: Number(data[0]), lng: Number(data[1]) };
         marker.setMap(null);
         marker = new google.maps.Marker({

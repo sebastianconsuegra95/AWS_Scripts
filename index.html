@@ -1,67 +1,70 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Proyecto Diseño MJSF</title>
-<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
 
-    <style>
-      #map {
-        height: 500px;
-        width: 100%;
-       }
-    </style>
+<head>
+  <title>Proyecto Diseño MJSF</title>
+  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+
+  <style>
+    #map {
+      height: 500px;
+      width: 100%;
+    }
+  </style>
 </head>
+
 <body>
 
-  
-    <div id="map"></div>
-    <script>
-      function initMap() {
-        var map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 13,
-          center: {lat:11.0041 , lng:-74.8070}
-        });
-        var marker = new google.maps.Marker({ });
-        getter();
-        setInterval(getter,7000);
-      
-        function getter(){
-         
+
+  <div id="map"></div>
+  <script>
+    function initMap() {
+      var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 13,
+        center: { lat: 11.0041, lng: -74.8070 }
+      });
+      var marker = new google.maps.Marker({});
+      getter();
+      setInterval(getter, 7000);
+
+      function getter() {
+
         var infodb = function () {
-            var temporal = null;
-           $.ajax({
-              'async': false,
-              'type': "POST",
-              'global': false,
-              'dataType': 'html',
-              'url': "get.php",
-              'success': function (data) { 
-                  temporal = data;
-              }
+          var temporal = null;
+          $.ajax({
+            'async': false,
+            'type': "POST",
+            'global': false,
+            'dataType': 'html',
+            'url': "get.php",
+            'success': function (data) {
+              temporal = data;
+            }
           });
           return temporal;
-      }();
-      if (infodb==null) {
-        infodb="";
-      }
-    var longElement = document.getElementById("test"); // Voy a mostrar un texto en donde esté el id "Latitud"
-      var data=infodb.split("\n")
-            longElement.textContent =  "Latitud: "+data[0]+" Longitud: "+data[1]+" Fecha y Hora: "+data[2]; 
-        var uluru = {lat: Number(data[0]), lng: Number(data[1])};
-       marker.setMap(null);
+        }();
+        if (infodb == null) {
+          infodb = "";
+        }
+        var longElement = document.getElementById("test"); // Voy a mostrar un texto en donde esté el id "Latitud"
+        var data = infodb.split("\n")
+        longElement.textContent = "Latitud: " + data[0] + " Longitud: " + data[1] + " Fecha y Hora: " + data[2];
+        var uluru = { lat: Number(data[0]), lng: Number(data[1]) };
+        marker.setMap(null);
         marker = new google.maps.Marker({
           position: uluru,
           map: map,
-          title:'Holi'
-        });}
+          title: 'Holi'
+        });
       }
-    </script>
-    <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCBOaRqI8IcgcQlXj5Evtv-0KgcHccWbeM&callback=initMap">
-    </script>
+    }
+  </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCBOaRqI8IcgcQlXj5Evtv-0KgcHccWbeM&callback=initMap">
+  </script>
 
-<h1 id="test"></h1>
-<p ></p>
+  <h1 id="test"></h1>
+  <p></p>
 
 </body>
+
 </html>

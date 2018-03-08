@@ -12,6 +12,6 @@ $fila = mysqli_fetch_row($resultado); // guardo en un array lo que está en resu
 $var = $fila[1]."\n".$fila[2]."\n".$fila[3]."\n";
 
  echo $var;
-  mysqli_close($conn);
+   mysqli_close($conn);
 
 ?>

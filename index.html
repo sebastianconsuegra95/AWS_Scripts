@@ -19,13 +19,10 @@
   <div id="map"></div>
   <script>
     function initMap() {
-     
       var marker = new google.maps.Marker({});
-      var data2=getter();
-      var map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 13,
-        center: data2
-      });
+      var bandera = 1;
+
+      getter();
 
       setInterval(getter, 7000);
 
@@ -51,14 +48,23 @@
         var longElement = document.getElementById("test"); // Voy a mostrar un texto en donde esté el id "Latitud"
         var data = infodb.split("\n")
         longElement.textContent = "Latitud: " + data[0] + " Longitud: " + data[1] + " Fecha y Hora: " + data[2];
+
         var uluru = { lat: Number(data[0]), lng: Number(data[1]) };
+
+        if (bandera == 1) {
+          var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 14,
+            center: uluru
+          });
+          bandera = 0;
+        }
+
         marker.setMap(null);
         marker = new google.maps.Marker({
           position: uluru,
           map: map,
           title: 'Holi'
         });
-        return uluru
 
         var flightPlanCoordinates = [];
         flightPlanCoordinates.push({ lat: Number(data[0]), lng: Number(data[1]) })

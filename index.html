@@ -21,7 +21,7 @@
   <script>
     function initMap() {
       var bandera = 1; //Bandera para inicializar mapa en centro junto con animacion DROP
-
+      var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
       // Inicializacion de Variables Google Maps
       var marker = new google.maps.Marker({});
       var map = new google.maps.Map(document.getElementById('map'), {
@@ -77,7 +77,7 @@
           bandera = 0;
         }
 
-        var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
+        
         flightPlanCoordinates.push({ lat: Number(data[0]), lng: Number(data[1]) })
 
         var flightPath = new google.maps.Polyline({ // Parametros de entrada para Polilinea

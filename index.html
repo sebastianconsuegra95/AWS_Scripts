@@ -60,16 +60,19 @@
             zoom: 14,
             center: uluru
           });
-          bandera = 0;
         }
 
         marker.setMap(null);
         marker = new google.maps.Marker({
           position: uluru,
           map: map,
-          animation: google.maps.Animation.DROP,
           title: 'Holi'
         });
+        if (bandera == 1) {
+          marker.setAnimation(google.maps.Animation.DROP)
+          bandera = 0;
+
+        }
 
         var flightPlanCoordinates = [];
         flightPlanCoordinates.push({ lat: Number(data[0]), lng: Number(data[1]) })

@@ -6,6 +6,8 @@
   <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
 
   <style>
+    /* Difinicion de Layout para google Maps  */
+
     #map {
       height: 500px;
       width: 100%;
@@ -18,20 +20,20 @@
   <div id="map"></div>
   <script>
     function initMap() {
+      var bandera = 1; //Bandera para inicializar mapa en centro junto con animacion DROP
 
-      var bandera = 1;
+      // Inicializacion de Variables Google Maps
       var marker = new google.maps.Marker({});
-
       var map = new google.maps.Map(document.getElementById('map'), {
         zoom: 14,
         center: { lat: 10, lng: -74 }
       });
+      // Funcion para obtener valores de GET.PHP
       getter();
-
       setInterval(getter, 7000);
 
       function getter() {
-
+        // Traduccion de archovo php a script
         var infodb = function () {
           var temporal = null;
           $.ajax({
@@ -49,13 +51,14 @@
         if (infodb == null) {
           infodb = "";
         }
-        var longElement = document.getElementById("test"); // Voy a mostrar un texto en donde esté el id "Latitud"
+
+        var longElement = document.getElementById("test"); // Mostrar por ID
+
         var data = infodb.split("\n")
         longElement.textContent = "Latitud: " + data[0] + " Longitud: " + data[1] + " Fecha y Hora: " + data[2];
+        var uluru = { lat: Number(data[0]), lng: Number(data[1]) }; // Posicion geografica
 
-        var uluru = { lat: Number(data[0]), lng: Number(data[1]) };
-
-        if (bandera == 1) {
+        if (bandera == 1) { //Inicializacion para centro de mapa en marcador
           map = new google.maps.Map(document.getElementById('map'), {
             zoom: 14,
             center: uluru
@@ -63,31 +66,28 @@
         }
 
         marker.setMap(null);
-        marker = new google.maps.Marker({
+        marker = new google.maps.Marker({ // Marcador 
           position: uluru,
           map: map,
           title: 'Holi'
         });
-        
-        if (bandera == 1) {
+
+        if (bandera == 1) { // Inicializacion para animacion DROP 
           marker.setAnimation(google.maps.Animation.DROP)
           bandera = 0;
-
         }
 
-        var flightPlanCoordinates = [];
+        var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
         flightPlanCoordinates.push({ lat: Number(data[0]), lng: Number(data[1]) })
 
-        var flightPath = new google.maps.Polyline({
+        var flightPath = new google.maps.Polyline({ // Parametros de entrada para Polilinea
           path: flightPlanCoordinates,
           geodesic: true,
           strokeColor: '#FF0000',
           strokeOpacity: 1.0,
           strokeWeight: 2
         });
-
         flightPath.setMap(map);
-
       }
     }
   </script>

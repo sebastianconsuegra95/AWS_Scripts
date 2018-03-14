@@ -80,22 +80,19 @@
           bandera = 0;
         }
 
-        var theurl = 'https://roads.googleapis.com/v1/snapToRoads?path=-35.27801,149.12958|-35.28032,149.12907|-35.28099,149.12929|-35.28144,149.12984|-35.28194,149.13003|-35.28282,149.12956|-35.28302,149.12881|-35.28473,149.12836'       // En caso de Ejemplo:10.995020,-74.813117|10.995942,-74.814807|10.996171,-74.8149351|10.996042,-74.815172|10.996260,-74.815577|10.996237,-74.815963|10.995989,-74.816011|10.995804,-74.816326|10.996203,-74.817371
-        //theurl = theurl.concat(data[0],",", data[1])
+        var theurl = 'https://roads.googleapis.com/v1/snapToRoads?path='       // En caso de Ejemplo:10.995020,-74.813117|10.995942,-74.814807|10.996171,-74.8149351|10.996042,-74.815172|10.996260,-74.815577|10.996237,-74.815963|10.995989,-74.816011|10.995804,-74.816326|10.996203,-74.817371
+        theurl = theurl.concat(data[0],",", data[1])
 
-        var TheURL = theurl.concat("&interpolate=true&key=AIzaSyBNPUIW6WUc1Cg5sQfivG0loxKZj1Bn9zE")
+        var TheURL = theurl.concat("&key=AIzaSyBNPUIW6WUc1Cg5sQfivG0loxKZj1Bn9zE")
         console.log(TheURL)
 
         client.get(TheURL, function (response) {
           var response1 = JSON.parse(response);
           console.log(response1)
-          for (let i = 0; i < response1.snappedPoints.length; i++) {
-            flightPlanCoordinates.push({
-            lat: response1.snappedPoints[i].location.latitude,
-            lng: response1.snappedPoints[i].location.longitude
+          flightPlanCoordinates.push({
+            lat: response1.snappedPoints[response1.snappedPoints.length - 1].location.latitude,
+            lng: response1.snappedPoints[response1.snappedPoints.length - 1].location.longitude
           })
-          }
-          
           console.log(flightPlanCoordinates)
         })
         theurl = theurl.concat("|")

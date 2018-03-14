@@ -4,7 +4,7 @@
 <head>
   <title>Proyecto Diseño MJSF</title>
   <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
-
+  <script src="http.js"></script>
   <style>
     /* Difinicion de Layout para google Maps  */
 
@@ -16,11 +16,14 @@
 </head>
 
 <body>
-
   <div id="map"></div>
-  <script>
+  <script>  
+
+    var client = httpclient();
+    var vectorURLPoints = [];
     function initMap() {
       var bandera = 1; //Bandera para inicializar mapa en centro junto con animacion DROP
+      var bandera2 = 1;
       var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
       // Inicializacion de Variables Google Maps
       var marker = new google.maps.Marker({});
@@ -28,12 +31,13 @@
         zoom: 14,
         center: { lat: 10, lng: -74 }
       });
+
       // Funcion para obtener valores de GET.PHP
       getter();
       setInterval(getter, 7000);
 
       function getter() {
-        // Traduccion de archovo php a script
+        // Traduccion de archivo php a script
         var infodb = function () {
           var temporal = null;
           $.ajax({
@@ -53,7 +57,6 @@
         }
 
         var longElement = document.getElementById("test"); // Mostrar por ID
-
         var data = infodb.split("\n")
         longElement.textContent = "Latitud: " + data[0] + " Longitud: " + data[1] + " Fecha y Hora: " + data[2];
         var uluru = { lat: Number(data[0]), lng: Number(data[1]) }; // Posicion geografica
@@ -64,7 +67,6 @@
             center: uluru
           });
         }
-        
 
         marker.setMap(null);
         marker = new google.maps.Marker({ // Marcador 
@@ -78,9 +80,27 @@
           bandera = 0;
         }
 
-        
-        flightPlanCoordinates.push({ lat: Number(data[0]), lng: Number(data[1]) })
+        var theurl = 'https://roads.googleapis.com/v1/snapToRoads?path=-35.27801,149.12958|-35.28032,149.12907|-35.28099,149.12929|-35.28144,149.12984|-35.28194,149.13003|-35.28282,149.12956|-35.28302,149.12881|-35.28473,149.12836'       // En caso de Ejemplo:10.995020,-74.813117|10.995942,-74.814807|10.996171,-74.8149351|10.996042,-74.815172|10.996260,-74.815577|10.996237,-74.815963|10.995989,-74.816011|10.995804,-74.816326|10.996203,-74.817371
+        //theurl = theurl.concat(data[0],",", data[1])
 
+        var TheURL = theurl.concat("&interpolate=true&key=AIzaSyBNPUIW6WUc1Cg5sQfivG0loxKZj1Bn9zE")
+        console.log(TheURL)
+
+        client.get(TheURL, function (response) {
+          var response1 = JSON.parse(response);
+          console.log(response1)
+          for (let i = 0; i < response1.snappedPoints.length; i++) {
+            flightPlanCoordinates.push({
+            lat: response1.snappedPoints[i].location.latitude,
+            lng: response1.snappedPoints[i].location.longitude
+          })
+          }
+          
+          console.log(flightPlanCoordinates)
+        })
+        theurl = theurl.concat("|")
+
+        //flightPlanCoordinates.push({ lat: Number(data[0]), lng: Number(data[1]) }) // Push Vector para graficar polilinea
         var flightPath = new google.maps.Polyline({ // Parametros de entrada para Polilinea
           path: flightPlanCoordinates,
           geodesic: true,
@@ -92,9 +112,7 @@
       }
     }
   </script>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCBOaRqI8IcgcQlXj5Evtv-0KgcHccWbeM&callback=initMap">
-  </script>
-
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCBOaRqI8IcgcQlXj5Evtv-0KgcHccWbeM&callback=initMap"> </script>
   <h1 id="test"></h1>
   <p></p>
 

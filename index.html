@@ -23,7 +23,6 @@
     var vectorURLPoints = [];
     function initMap() {
       var bandera = 1; //Bandera para inicializar mapa en centro junto con animacion DROP
-      var bandera2 = 1;
       var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
       // Inicializacion de Variables Google Maps
       var marker = new google.maps.Marker({});
@@ -80,24 +79,24 @@
           bandera = 0;
         }
 
-        var theurl = 'https://roads.googleapis.com/v1/snapToRoads?path='       // En caso de Ejemplo:10.995020,-74.813117|10.995942,-74.814807|10.996171,-74.8149351|10.996042,-74.815172|10.996260,-74.815577|10.996237,-74.815963|10.995989,-74.816011|10.995804,-74.816326|10.996203,-74.817371
-        theurl = theurl.concat(data[0],",", data[1])
+        // var theurl = 'https://roads.googleapis.com/v1/snapToRoads?path='       // En caso de Ejemplo:10.995020,-74.813117|10.995942,-74.814807|10.996171,-74.8149351|10.996042,-74.815172|10.996260,-74.815577|10.996237,-74.815963|10.995989,-74.816011|10.995804,-74.816326|10.996203,-74.817371
+        // theurl = theurl.concat(data[0],",", data[1])
 
-        var TheURL = theurl.concat("&interpolate=true&key=AIzaSyBNPUIW6WUc1Cg5sQfivG0loxKZj1Bn9zE")
-        console.log(TheURL)
+        // var TheURL = theurl.concat("&interpolate=true&key=AIzaSyBNPUIW6WUc1Cg5sQfivG0loxKZj1Bn9zE")
+        // console.log(TheURL)
 
-        client.get(TheURL, function (response) {
-          var response1 = JSON.parse(response);
-          console.log(response1)
-          flightPlanCoordinates.push({
-            lat: response1.snappedPoints[response1.snappedPoints.length - 1].location.latitude,
-            lng: response1.snappedPoints[response1.snappedPoints.length - 1].location.longitude
-          })
-          console.log(flightPlanCoordinates)
-        })
-        theurl = theurl.concat("|")
+        // client.get(TheURL, function (response) {
+        //   var response1 = JSON.parse(response);
+        //   console.log(response1)
+        //   flightPlanCoordinates.push({
+        //     lat: response1.snappedPoints[response1.snappedPoints.length - 1].location.latitude,
+        //     lng: response1.snappedPoints[response1.snappedPoints.length - 1].location.longitude
+        //   })
+        //   console.log(flightPlanCoordinates)
+        // })
+        // theurl = theurl.concat("|")
 
-        //flightPlanCoordinates.push({ lat: Number(data[0]), lng: Number(data[1]) }) // Push Vector para graficar polilinea
+        flightPlanCoordinates.push({ lat: Number(data[0]), lng: Number(data[1]) }) // Push Vector para graficar polilinea
         var flightPath = new google.maps.Polyline({ // Parametros de entrada para Polilinea
           path: flightPlanCoordinates,
           geodesic: true,

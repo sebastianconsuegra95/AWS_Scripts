@@ -12,7 +12,7 @@ def main():
     mateo = pymysql.connect(user='root', password='123456789',
                             host='mydbdiseno2.crn0fxtqoene.us-east-1.rds.amazonaws.com', database='dbsyrus')
 
-    cursor = mateo.cursor()
+  
 
     insertar = (
         "INSERT INTO syrus" "(latitud, longitud, hora)" "VALUES (%s, %s, %s)")

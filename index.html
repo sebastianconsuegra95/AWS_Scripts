@@ -3,8 +3,25 @@
 
 <head>
   <title>Proyecto Diseño MJSF</title>
+
   <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
   <script src="http.js"></script>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  <link rel="stylesheet" href="webstyle.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+
+    $(function () {
+      $("#date1").datepicker({
+        dateFormat: "dd/mm/yy"
+      });
+      $("#date2").datepicker({
+        dateFormat: "dd/mm/yy"
+      });
+    });
+  </script>
   <style>
     /* Difinicion de Layout para google Maps  */
 
@@ -17,8 +34,16 @@
 
 <body>
   <div id="map"></div>
-  <script>  
+  <div id="columnas">
+    <h1>Date1:
+      <input type="text" id="date1">
+    </h1>
+    <h1>Date2:
+      <input type="text" id="date2">
+    </h1>
+  </div>
 
+  <script>
     var client = httpclient();
     var vectorURLPoints = [];
     function initMap() {
@@ -30,13 +55,19 @@
         zoom: 14,
         center: { lat: 10, lng: -74 }
       });
-
       // Funcion para obtener valores de GET.PHP
       getter();
       setInterval(getter, 7000);
 
       function getter() {
         // Traduccion de archivo php a script
+        var DATE_1 = new Date($("#date1").datepicker("getDate"))
+        var date_1 = [DATE_1.getDate(), DATE_1.getMonth(), DATE_1.getFullYear()];
+
+        var DATE_2 = new Date($("#date2").datepicker("getDate"))
+        var date_2 = [DATE_2.getDate(), DATE_2.getMonth(), DATE_2.getFullYear()];
+
+        console.log(date_1, date_2)
         var infodb = function () {
           var temporal = null;
           $.ajax({
@@ -79,24 +110,25 @@
           bandera = 0;
         }
 
-        // var theurl = 'https://roads.googleapis.com/v1/snapToRoads?path='       // En caso de Ejemplo:10.995020,-74.813117|10.995942,-74.814807|10.996171,-74.8149351|10.996042,-74.815172|10.996260,-74.815577|10.996237,-74.815963|10.995989,-74.816011|10.995804,-74.816326|10.996203,-74.817371
-        // theurl = theurl.concat(data[0],",", data[1])
+        var theurl = 'https://roads.googleapis.com/v1/snapToRoads?path='       // En caso de Ejemplo:10.995020,-74.813117|10.995942,-74.814807|10.996171,-74.8149351|10.996042,-74.815172|10.996260,-74.815577|10.996237,-74.815963|10.995989,-74.816011|10.995804,-74.816326|10.996203,-74.817371
+        theurl = theurl.concat(data[0], ",", data[1])
 
-        // var TheURL = theurl.concat("&interpolate=true&key=AIzaSyBNPUIW6WUc1Cg5sQfivG0loxKZj1Bn9zE")
-        // console.log(TheURL)
+        var TheURL = theurl.concat("&interpolate=true&key=AIzaSyBNPUIW6WUc1Cg5sQfivG0loxKZj1Bn9zE")
 
-        // client.get(TheURL, function (response) {
-        //   var response1 = JSON.parse(response);
-        //   console.log(response1)
-        //   flightPlanCoordinates.push({
-        //     lat: response1.snappedPoints[response1.snappedPoints.length - 1].location.latitude,
-        //     lng: response1.snappedPoints[response1.snappedPoints.length - 1].location.longitude
-        //   })
-        //   console.log(flightPlanCoordinates)
-        // })
-        // theurl = theurl.concat("|")
 
-        flightPlanCoordinates.push({ lat: Number(data[0]), lng: Number(data[1]) }) // Push Vector para graficar polilinea
+        client.get(TheURL, function (response) {
+          var response1 = JSON.parse(response);
+
+          flightPlanCoordinates.push({
+            lat: response1.snappedPoints[response1.snappedPoints.length - 1].location.latitude,
+            lng: response1.snappedPoints[response1.snappedPoints.length - 1].location.longitude
+          })
+
+        })
+        theurl = theurl.concat("|")
+
+        //flightPlanCoordinates.push({ lat: Number(data[0]), lng: Number(data[1]) }) // Push Vector para graficar polilinea
+
         var flightPath = new google.maps.Polyline({ // Parametros de entrada para Polilinea
           path: flightPlanCoordinates,
           geodesic: true,
@@ -105,6 +137,8 @@
           strokeWeight: 2
         });
         flightPath.setMap(map);
+
+
       }
     }
   </script>

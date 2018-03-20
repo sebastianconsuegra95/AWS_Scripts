@@ -12,12 +12,12 @@ def main():
     mateo = pymysql.connect(user='root', password='123456789',
                             host='mydbdiseno2.crn0fxtqoene.us-east-1.rds.amazonaws.com', database='dbsyrus')
 
-  
+    cursor = mateo.cursor()
 
     insertar = (
         "INSERT INTO syrus" "(latitud, longitud, hora)" "VALUES (%s, %s, %s)")
 
-    conn = socket.socket(socket.AF_INT, socket.SOCK_DGRAM)
+    conn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     HOST = "172.31.90.245"
     conn.bind((HOST, 10701))

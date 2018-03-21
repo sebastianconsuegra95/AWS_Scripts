@@ -34,14 +34,16 @@
 
 <body>
   <div id="map"></div>
+  <div> </div>
   <div id="columnas">
-    <h1>Date1:
+    <h2>Date1:
       <input type="text" id="date1">
-    </h1>
-    <h1>Date2:
+    </h2>
+    <h2>Date2:
       <input type="text" id="date2">
-    </h1>
+    </h2>
   </div>
+  <button onclick="generateSTcode()">Enviar</button>
 
   <script>
     var client = httpclient();
@@ -58,6 +60,29 @@
       // Funcion para obtener valores de GET.PHP
       getter();
       setInterval(getter, 7000);
+
+      function generateSTcode(){
+
+        var infodb = function () {
+          var temporal = null;
+          $.ajax({
+            'async': false,
+            'type': "POST",
+            'global': false,
+            'dataType': 'html',
+            'url': "get2.php",
+            'success': function (data) {
+              temporal = data;
+            }
+          });
+          return temporal;
+        }();
+        if (infodb == null) {
+          infodb = "";
+        }
+
+
+      }
 
       function getter() {
         // Traduccion de archivo php a script
@@ -143,8 +168,8 @@
     }
   </script>
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCBOaRqI8IcgcQlXj5Evtv-0KgcHccWbeM&callback=initMap"> </script>
-  <h1 id="test"></h1>
-  <p></p>
+  <h1 style="text-align:center" id="test"></h1>
+  <h2></h2>
 
 </body>
 

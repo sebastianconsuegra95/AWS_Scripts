@@ -1,4 +1,6 @@
 #columnas{
-    column-count:2;
+    column-count:3;
     column-gap:20px;
+    display:flex;
+    justify-content: space-around
  }

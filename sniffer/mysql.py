@@ -16,13 +16,18 @@ def main():
 	insertar = ("INSERT INTO syrus" "(latitud, longitud, hora, time)" "VALUES (%s, %s, %s, %s)")
 
 
-	#conn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	#conn.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
-	#HOST = "172.31.90.245"
-	#conn.bind((HOST, 10701))
+	conn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	conn.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+	HOST = "172.31.90.245"
+	conn.bind((HOST, 10701))
 	
-	dt = datetime.fromtimestamp(1346236702)
-	print (time.mktime(dt.timetuple()))
+	# v=25
+
+	# dt=datetime(2018,3,21,2,00,00,00)
+	# print ((dt - datetime(1970, 1, 1,00,00,00)).total_seconds())
+	
+	# dt = datetime.fromtimestamp(1346236702)
+	# print (time.mktime(dt.timetuple()))
 	
 	while True:
 		raw_data,addr = conn.recvfrom(65536)
@@ -63,7 +68,7 @@ def main():
 			base = (lat, lon, hora, time2)
 			print(base)
 
-			#cursor.execute(insertar, base)
+			cursor.execute(insertar, base)
 
 			#Make sure data is committed to the database
 			mateo.commit()

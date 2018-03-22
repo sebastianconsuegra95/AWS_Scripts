@@ -8,9 +8,15 @@
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <!-- <link rel="stylesheet" href="/resources/demos/style.css"> -->
     <script src="../http.js"></script>
-    <link rel="stylesheet" href="/css/webstyle.css">
+    <link rel="stylesheet" href="../css/webstyle.css">
+
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <script src="../jquery-timepicker/jquery.timepicker.min.js"></script>
+    <link rel="stylesheet" href="../jquery-timepicker/jquery.timepicker.css">
+
+
     <script>
         $(function () {
             $("#date1").datepicker({
@@ -34,14 +40,24 @@
 <body>
     <div id="map"></div>
     <div> </div>
-    <div id="columnas">
-        <h2>Date1:
-            <input type="text" id="date1">
-        </h2>
-        <h2>Date2:
-            <input type="text" id="date2">
-        </h2>
-    </div>
+
+    <p class="order">
+        <input type="text" id="date1" />
+        <input type="text" id="time1" /> to
+        <input type="text" id="date2" />
+        <input type="text" id="time2"/>
+    </p>
+    <script>
+        $('#time1').timepicker({
+            'showDuration': true,
+            'timeFormat': 'H:i:s'
+        });
+        $('#time2').timepicker({
+            'showDuration': true,
+            'timeFormat': 'H:i:s'
+        });
+    </script>
+
     <button href="#" onclick="generateSTcode()">Enviar</button>
 
     <script>
@@ -55,12 +71,25 @@
             var range_2 = 254;
 
             var DATE_1 = new Date($("#date1").datepicker("getDate"))
-            var date_1 = [DATE_1.getDate(), DATE_1.getMonth() + 1, DATE_1.getFullYear()];
+            var date_1 = [DATE_1.getDate(), DATE_1.getMonth(), DATE_1.getFullYear()];
+
+            var TIME_1=new Date($("#time1").timepicker("getTime"))
+            var time_1=[TIME_1.getHours(), TIME_1.getMinutes()]
 
             var DATE_2 = new Date($("#date2").datepicker("getDate"))
-            var date_2 = [DATE_2.getDate(), DATE_2.getMonth() + 1, DATE_2.getFullYear()];
+            var date_2 = [DATE_2.getDate(), DATE_2.getMonth(), DATE_2.getFullYear()];
 
-            console.log(date_1, date_2)
+            var TIME_2=new Date($("#time2").timepicker("getTime"))
+            var time_2=[TIME_2.getHours(), TIME_2.getMinutes()]
+
+            var date_1_UTC = new Date(date_1[2],date_1[1],date_1[0],time_1[0],time_1[1])
+            date_1_UTC=date_1_UTC.getTime()
+
+            var date_2_UTC = new Date(date_2[2],date_2[1],date_2[0],time_2[0],time_2[1])
+            date_2_UTC=date_2_UTC.getTime()
+    
+            console.log(date_1_UTC,date_2_UTC)
+
             document.cookie = "range_1=" + String(range_1) + " "
             document.cookie = "range_2=" + String(range_2) + " "
 

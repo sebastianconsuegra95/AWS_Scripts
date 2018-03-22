@@ -1,6 +1,4 @@
-#columnas{
-    column-count:3;
-    column-gap:20px;
-    display:flex;
-    justify-content: space-around
+.order{
+    text-align: center
  }
+

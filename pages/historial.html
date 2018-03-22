@@ -1,12 +1,136 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>algo</title>
+    <title>Proyecto Diseño MJSF</title>
+
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <!-- <link rel="stylesheet" href="/resources/demos/style.css"> -->
+    <script src="../http.js"></script>
+    <link rel="stylesheet" href="/css/webstyle.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            $("#date1").datepicker({
+                dateFormat: "dd/mm/yy"
+            });
+            $("#date2").datepicker({
+                dateFormat: "dd/mm/yy"
+            });
+        });
+    </script>
+    <style>
+        /* Difinicion de Layout para google Maps  */
+
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
 </head>
+
 <body>
-    <p>Holaaaa</p>
+    <div id="map"></div>
+    <div> </div>
+    <div id="columnas">
+        <h2>Date1:
+            <input type="text" id="date1">
+        </h2>
+        <h2>Date2:
+            <input type="text" id="date2">
+        </h2>
+    </div>
+    <button href="#" onclick="generateSTcode()">Enviar</button>
+
+    <script>
+        var client = httpclient();
+        var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
+        var vectorURLPoints = [];
+
+        function generateSTcode() {
+            // document.cookie = "url=pages/historial.html"
+            var range_1 = 240;
+            var range_2 = 254;
+
+            var DATE_1 = new Date($("#date1").datepicker("getDate"))
+            var date_1 = [DATE_1.getDate(), DATE_1.getMonth() + 1, DATE_1.getFullYear()];
+
+            var DATE_2 = new Date($("#date2").datepicker("getDate"))
+            var date_2 = [DATE_2.getDate(), DATE_2.getMonth() + 1, DATE_2.getFullYear()];
+
+            console.log(date_1, date_2)
+            document.cookie = "range_1=" + String(range_1) + " "
+            document.cookie = "range_2=" + String(range_2) + " "
+
+            // Traduccion de archivo php a script
+            var infodb = function () {
+                var temporal = null;
+                $.ajax({
+                    'async': false,
+                    'type': "POST",
+                    'global': false,
+                    'dataType': 'html',
+                    'url': "../get2.php",
+                    'success': function (data) {
+                        temporal = data;
+                    }
+                });
+                return temporal;
+            }();
+            if (infodb == null) {
+                infodb = "";
+            }
+            infodb = infodb.split(" ")
+            var data = [[], []]
+            for (let i = 0; i < infodb.length / 2; i++) {
+                data[0][i] = infodb[i]
+                data[1][i] = infodb[i + infodb.length / 2]
+                flightPlanCoordinates.push({ lat: Number(data[0][i]), lng: Number(data[1][i]) })
+            }
+            console.log(flightPlanCoordinates)
+
+            initMap(flightPlanCoordinates)
+        }
+
+
+        function initMap() {
+            // Inicializacion de Variables Google Maps
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 13,
+                center: { lat: 10.986532, lng: -74.809226 }
+            });
+
+            // var theurl = 'https://roads.googleapis.com/v1/snapToRoads?path='       // En caso de Ejemplo:10.995020,-74.813117|10.995942,-74.814807|10.996171,-74.8149351|10.996042,-74.815172|10.996260,-74.815577|10.996237,-74.815963|10.995989,-74.816011|10.995804,-74.816326|10.996203,-74.817371
+            // theurl = theurl.concat(data[0][i], ",", data[1][i])
+            // var TheURL = theurl.concat("&interpolate=true&key=AIzaSyBNPUIW6WUc1Cg5sQfivG0loxKZj1Bn9zE")
+            // client.get(TheURL, function (response) {
+            //   var response1 = JSON.parse(response);
+
+            //   flightPlanCoordinates.push({
+            //     lat: response1.snappedPoints[response1.snappedPoints.length - 1].location.latitude,
+            //     lng: response1.snappedPoints[response1.snappedPoints.length - 1].location.longitude
+            //   })
+
+            // })
+            // theurl = theurl.concat("|")
+
+            //flightPlanCoordinates.push({ lat: Number(data[0]), lng: Number(data[1]) }) // Push Vector para graficar polilinea
+
+            var flightPath = new google.maps.Polyline({ // Parametros de entrada para Polilinea
+                path: flightPlanCoordinates,
+                geodesic: true,
+                strokeColor: '#FF0000',
+                strokeOpacity: 1.0,
+                strokeWeight: 2
+            });
+            flightPath.setMap(map);
+        }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCBOaRqI8IcgcQlXj5Evtv-0KgcHccWbeM&callback=initMap"> </script>
+    <h1 style="text-align:center" id="test"></h1>
+    <h2></h2>
 </body>
+
 </html>

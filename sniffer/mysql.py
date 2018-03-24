@@ -8,26 +8,17 @@ import struct
 import textwrap
 
 def main():
-
 	mateo = pymysql.connect(user='root', password='123456789',host='mydbdiseno2.crn0fxtqoene.us-east-1.rds.amazonaws.com', database='dbsyrus')
 
 	cursor = mateo.cursor()
 
-	insertar = ("INSERT INTO syrus" "(latitud, longitud, hora, time)" "VALUES (%s, %s, %s, %s)")
+	insertar = ("INSERT INTO syrus" "(latitud, longitud, hora, timems)" "VALUES (%s, %s, %s, %s)")
 
 
 	conn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	conn.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
 	HOST = "172.31.90.245"
 	conn.bind((HOST, 10701))
-	
-	# v=25
-
-	# dt=datetime(2018,3,21,2,00,00,00)
-	# print ((dt - datetime(1970, 1, 1,00,00,00)).total_seconds())
-	
-	# dt = datetime.fromtimestamp(1346236702)
-	# print (time.mktime(dt.timetuple()))
 	
 	while True:
 		raw_data,addr = conn.recvfrom(65536)
@@ -58,14 +49,14 @@ def main():
 
 			fecha = fecha.strftime('%m/%d/%Y')
 
-			hora = fecha + "   " + str(H) + ":" + str(M) + ":" + str(S)
-			# hora = "NO YET"
-			
+			print(fecha)
 
-			#(datetime.strptime('20.12.2016 09:38:42,76','%d.%m.%Y %H:%M:%S,%f') - epoch).total_seconds() * 1000.0
+			hora = fecha + "   " + str(H) + ":" + str(M) + ":" + str(S)			
 
-			time2=datetime()
-			base = (lat, lon, hora, time2)
+			#date2time=datetime(2018,3,21,2,H,M,S)
+			#print ((dt - datetime(1969, 12, 31,19,00,00)).total_seconds()*1000-1521615600000)
+			timems=(date2time - datetime(1969, 12, 31,19,00,00)).total_seconds()*1000-1521615600000
+			base = (lat, lon, hora, timems)
 			print(base)
 
 			cursor.execute(insertar, base)

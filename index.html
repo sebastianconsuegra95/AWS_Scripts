@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Proyecto Diseño MJSF</title>
+  <title>AquiToy</title>
 
   <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -13,22 +13,69 @@
     /* Difinicion de Layout para google Maps  */
 
     #map {
-      height: 500px;
+      height: 620px;
       width: 100%;
     }
   </style>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Bootstrap core CSS -->
+  <link href="bootstrap/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="bootstrap/css/the-big-picture.css" rel="stylesheet">
+
 </head>
 
 <body>
-  <div id="map"></div>
-  <button href="#" onclick="generateSTcode()">Historicos</button>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#811411">
+    <div class="container">
+      <a class="navbar-brand" href="#">AquiToy 
+        <img src="img/logo.svg">
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive"
+        aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="#">Tiempo Real
+              <span class="sr-only">(current)</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="navHistoricalPage()">Datos Historicos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Services</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Contact</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+
+  <section>
+    <div id="map"></div>
+  </section>
 
   <script>
     var client = httpclient();
     var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
     var vectorURLPoints = [];
 
-    function generateSTcode() {
+    function navHistoricalPage() {
       window.location.href = "/pages/historial.html";
     }
 
@@ -65,9 +112,7 @@
           infodb = "";
         }
 
-        var longElement = document.getElementById("test"); // Mostrar por ID
         var data = infodb.split("\n")
-        longElement.textContent = "Latitud: " + data[0] + " Longitud: " + data[1] + " Fecha y Hora: " + data[2];
         var uluru = { lat: Number(data[0]), lng: Number(data[1]) }; // Posicion geografica
 
         if (bandera == 1) { //Inicializacion para centro de mapa en marcador
@@ -113,14 +158,12 @@
           strokeWeight: 2
         });
         flightPath.setMap(map);
-        
       }
     }
   </script>
+  <script src="bootstrap/vendor/jquery/jquery.min.js"></script>
+  <script src="bootstrap/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCBOaRqI8IcgcQlXj5Evtv-0KgcHccWbeM&callback=initMap"> </script>
-  <h1 style="text-align:center" id="test"></h1>
-  <h2></h2>
-
 </body>
 
 </html>

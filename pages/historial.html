@@ -3,20 +3,23 @@
 
 <head>
     <title>Proyecto Diseño MJSF</title>
-
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+    <!-- Https Source for datepicker -->
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <!-- <link rel="stylesheet" href="/resources/demos/style.css"> -->
+
+    <!-- Local Sources -->
     <script src="../http.js"></script>
     <link rel="stylesheet" href="../css/webstyle.css">
 
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
+    <!-- Sources for timepicker (Local Sources) -->
     <script src="../jquery-timepicker/jquery.timepicker.min.js"></script>
     <link rel="stylesheet" href="../jquery-timepicker/jquery.timepicker.css">
 
-
+    <!-- Start ID for datepicker -->
     <script>
         $(function () {
             $("#date1").datepicker({
@@ -39,15 +42,15 @@
 
 <body>
     <div id="map"></div>
-    <div> </div>
-
+    <!-- Historical Data Input -->
     <p class="order">
         <input type="text" id="date1" />
         <input type="text" id="time1" /> to
         <input type="text" id="date2" />
-        <input type="text" id="time2"/>
+        <input type="text" id="time2" />
     </p>
     <script>
+        //Start Class for timepicker
         $('#time1').timepicker({
             'showDuration': true,
             'timeFormat': 'H:i:s'
@@ -58,40 +61,38 @@
         });
     </script>
 
-    <button href="#" onclick="generateSTcode()">Enviar</button>
+    <button onclick="generateSTcode()">Enviar</button>
 
     <script>
-        var client = httpclient();
+        var timems_1 = 240;
+        var timems_2 = 254;
+        var client = httpclient(); // Request for google roads api
         var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
-        var vectorURLPoints = [];
-
+        var bandera = 0; //Bandera para centrar mapa en mitad de recorrido historico
         function generateSTcode() {
-            // document.cookie = "url=pages/historial.html"
-            var range_1 = 240;
-            var range_2 = 254;
-
+            var timems_1 = 240;
+            var timems_2 = 254;
+            //Data of calendar and hours
             var DATE_1 = new Date($("#date1").datepicker("getDate"))
             var date_1 = [DATE_1.getDate(), DATE_1.getMonth(), DATE_1.getFullYear()];
 
-            var TIME_1=new Date($("#time1").timepicker("getTime"))
-            var time_1=[TIME_1.getHours(), TIME_1.getMinutes()]
+            var TIME_1 = new Date($("#time1").timepicker("getTime"))
+            var time_1 = [TIME_1.getHours(), TIME_1.getMinutes()]
 
             var DATE_2 = new Date($("#date2").datepicker("getDate"))
             var date_2 = [DATE_2.getDate(), DATE_2.getMonth(), DATE_2.getFullYear()];
 
-            var TIME_2=new Date($("#time2").timepicker("getTime"))
-            var time_2=[TIME_2.getHours(), TIME_2.getMinutes()]
+            var TIME_2 = new Date($("#time2").timepicker("getTime"))
+            var time_2 = [TIME_2.getHours(), TIME_2.getMinutes()]
 
-            var date_1_UTC = new Date(date_1[2],date_1[1],date_1[0],time_1[0],time_1[1])
-            date_1_UTC=date_1_UTC.getTime()
+            var date_1_UTC = new Date(date_1[2], date_1[1], date_1[0], time_1[0], time_1[1])
+            date_1_UTC = date_1_UTC.getTime() //Time in miliseconds
 
-            var date_2_UTC = new Date(date_2[2],date_2[1],date_2[0],time_2[0],time_2[1])
-            date_2_UTC=date_2_UTC.getTime()
-    
-            console.log(date_1_UTC,date_2_UTC)
+            var date_2_UTC = new Date(date_2[2], date_2[1], date_2[0], time_2[0], time_2[1])
+            date_2_UTC = date_2_UTC.getTime() //Time in miliseconds
 
-            document.cookie = "range_1=" + String(range_1) + " "
-            document.cookie = "range_2=" + String(range_2) + " "
+            document.cookie = "timems_1=" + timems_1 + " " //JS variable to PHP
+            document.cookie = "timems_2=" + timems_2 + " " //JS variable to PHP
 
             // Traduccion de archivo php a script
             var infodb = function () {
@@ -101,7 +102,7 @@
                     'type': "POST",
                     'global': false,
                     'dataType': 'html',
-                    'url': "../get2.php",
+                    'url': "../historicalGet.php",
                     'success': function (data) {
                         temporal = data;
                     }
@@ -111,41 +112,81 @@
             if (infodb == null) {
                 infodb = "";
             }
+
             infodb = infodb.split(" ")
-            var data = [[], []]
+            console.log(infodb)
+            var data = [[], []] //Array Multi for save historical data (lat, lng)
+            // var theurl = 'https://roads.googleapis.com/v1/snapToRoads?path=' 
             for (let i = 0; i < infodb.length / 2; i++) {
                 data[0][i] = infodb[i]
                 data[1][i] = infodb[i + infodb.length / 2]
+                // With Google Roads API
+                // theurl = theurl.concat(data[0][i], ",", data[1][i])
+                // if (i != infodb.length / 2 - 1) {
+                //     // theurl = theurl.concat("|")
+                // }
                 flightPlanCoordinates.push({ lat: Number(data[0][i]), lng: Number(data[1][i]) })
             }
-            console.log(flightPlanCoordinates)
 
-            initMap(flightPlanCoordinates)
+            bandera = 1;
+            console.log(flightPlanCoordinates)
+            initMap(flightPlanCoordinates, bandera)
         }
 
 
         function initMap() {
+            var startMarker = new google.maps.Marker({});
+            var endMarker = new google.maps.Marker({});
+            var center = { lat: 10.986532, lng: -74.809226 }
+            var startMarkerPosition = { lat: 0, lng: 0 }
+            var endMarkerPosition = { lat: 0, lng: 0 }
+            if (bandera == 1) { // Centrar mapaen recorrido historico
+                center = {
+                    lat: flightPlanCoordinates[Math.round(flightPlanCoordinates.length / 2)].lat,
+                    lng: flightPlanCoordinates[Math.round(flightPlanCoordinates.length / 2)].lng
+                }
+                startMarkerPosition = {
+                    lat: flightPlanCoordinates[0].lat,
+                    lng: flightPlanCoordinates[0].lng
+                }
+                endMarkerPosition = {
+                    lat: flightPlanCoordinates[flightPlanCoordinates.length - 1].lat,
+                    lng: flightPlanCoordinates[flightPlanCoordinates.length - 1].lng
+                }
+            }
             // Inicializacion de Variables Google Maps
             var map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 13,
-                center: { lat: 10.986532, lng: -74.809226 }
+                center: center
             });
 
-            // var theurl = 'https://roads.googleapis.com/v1/snapToRoads?path='       // En caso de Ejemplo:10.995020,-74.813117|10.995942,-74.814807|10.996171,-74.8149351|10.996042,-74.815172|10.996260,-74.815577|10.996237,-74.815963|10.995989,-74.816011|10.995804,-74.816326|10.996203,-74.817371
-            // theurl = theurl.concat(data[0][i], ",", data[1][i])
+            var startMarker = new google.maps.Marker({
+                position: startMarkerPosition,
+                map: map,
+                animation: google.maps.Animation.DROP,
+                title: 'INICIO'
+            })
+
+            console.log(flightPlanCoordinates)
+
+            var endMarker = new google.maps.Marker({
+                position: endMarkerPosition,
+                map: map,
+                animation: google.maps.Animation.DROP,
+                title: 'FIN'
+            })
+
+            // With Google Roads API
             // var TheURL = theurl.concat("&interpolate=true&key=AIzaSyBNPUIW6WUc1Cg5sQfivG0loxKZj1Bn9zE")
             // client.get(TheURL, function (response) {
-            //   var response1 = JSON.parse(response);
-
-            //   flightPlanCoordinates.push({
-            //     lat: response1.snappedPoints[response1.snappedPoints.length - 1].location.latitude,
-            //     lng: response1.snappedPoints[response1.snappedPoints.length - 1].location.longitude
-            //   })
-
+            //     var response1 = JSON.parse(response);
+            //     for (let i = 0; i < response1.snappedPoints.length; i++) {
+            //         flightPlanCoordinates.push({
+            //             lat: response1.snappedPoints[i].location.latitude,
+            //             lng: response1.snappedPoints[i].location.latitude
+            //         })
+            //     }
             // })
-            // theurl = theurl.concat("|")
-
-            //flightPlanCoordinates.push({ lat: Number(data[0]), lng: Number(data[1]) }) // Push Vector para graficar polilinea
 
             var flightPath = new google.maps.Polyline({ // Parametros de entrada para Polilinea
                 path: flightPlanCoordinates,

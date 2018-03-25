@@ -55,7 +55,8 @@ def main():
 
 			#date2time=datetime(2018,3,21,2,H,M,S)
 			#print ((dt - datetime(1969, 12, 31,19,00,00)).total_seconds()*1000-1521615600000)
-			timems=(date2time - datetime(1969, 12, 31,19,00,00)).total_seconds()*1000-1521615600000
+			#timems=(date2time - datetime(1969, 12, 31,19,00,00)).total_seconds()*1000-1521615600000
+			timems=1
 			base = (lat, lon, hora, timems)
 			print(base)
 

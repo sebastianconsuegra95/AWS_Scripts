@@ -38,10 +38,53 @@
             width: 100%;
         }
     </style>
+
+    <!-- Fuentes de bootstrap -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Bootstrap core CSS -->
+    <link href="../bootstrap/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
 </head>
 
 <body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#811411">
+        <div class="container">
+            <a class="navbar-brand" style="font-size:25px ; font-family:sans-serif" href="#">AquiToy
+                <img style="width:35px" src="../img/logo.svg">
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive"
+                aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="navTimeRealPage()">Tiempo Real</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Historicos
+                            <span class="sr-only">(current)</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- <section> -->
     <div id="map"></div>
+    <!-- </section> -->
     <!-- Historical Data Input -->
     <p class="order">
         <input type="text" id="date1" />
@@ -69,6 +112,14 @@
         var client = httpclient(); // Request for google roads api
         var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
         var bandera = 0; //Bandera para centrar mapa en mitad de recorrido historico
+        var theurl = 'https://roads.googleapis.com/v1/snapToRoads?path='
+        var data = [[], []] //Array Multi for save historical data (lat, lng)
+
+
+        function navTimeRealPage() {
+            window.location.href = '../index.html'
+        }
+
         function generateSTcode() {
             var timems_1 = 240;
             var timems_2 = 254;
@@ -115,22 +166,21 @@
 
             infodb = infodb.split(" ")
             console.log(infodb)
-            var data = [[], []] //Array Multi for save historical data (lat, lng)
-            // var theurl = 'https://roads.googleapis.com/v1/snapToRoads?path=' 
+            theurl = 'https://roads.googleapis.com/v1/snapToRoads?path='
             for (let i = 0; i < infodb.length / 2; i++) {
                 data[0][i] = infodb[i]
                 data[1][i] = infodb[i + infodb.length / 2]
-                // With Google Roads API
-                // theurl = theurl.concat(data[0][i], ",", data[1][i])
-                // if (i != infodb.length / 2 - 1) {
-                //     // theurl = theurl.concat("|")
-                // }
-                flightPlanCoordinates.push({ lat: Number(data[0][i]), lng: Number(data[1][i]) })
+                //With Google Roads API
+                theurl = theurl.concat(data[0][i], ",", data[1][i])
+                if (i != infodb.length / 2 - 1) {
+                    theurl = theurl.concat("|")
+                }
+                // flightPlanCoordinates.push({ lat: Number(data[0][i]), lng: Number(data[1][i]) })
             }
-
+            console.log(data)
+            console.log(data[0].length)
             bandera = 1;
-            console.log(flightPlanCoordinates)
-            initMap(flightPlanCoordinates, bandera)
+            initMap(bandera, theurl, data)
         }
 
 
@@ -142,16 +192,16 @@
             var endMarkerPosition = { lat: 0, lng: 0 }
             if (bandera == 1) { // Centrar mapaen recorrido historico
                 center = {
-                    lat: flightPlanCoordinates[Math.round(flightPlanCoordinates.length / 2)].lat,
-                    lng: flightPlanCoordinates[Math.round(flightPlanCoordinates.length / 2)].lng
+                    lat: Number(data[0][Math.round(data.length / 2)]),
+                    lng: Number(data[1][Math.round(data.length / 2)])
                 }
                 startMarkerPosition = {
-                    lat: flightPlanCoordinates[0].lat,
-                    lng: flightPlanCoordinates[0].lng
+                    lat: Number(data[0][0]),
+                    lng: Number(data[1][0])
                 }
                 endMarkerPosition = {
-                    lat: flightPlanCoordinates[flightPlanCoordinates.length - 1].lat,
-                    lng: flightPlanCoordinates[flightPlanCoordinates.length - 1].lng
+                    lat: Number(data[0][data[0].length - 1]),
+                    lng: Number(data[1][data[1].length - 1])
                 }
             }
             // Inicializacion de Variables Google Maps
@@ -167,8 +217,6 @@
                 title: 'INICIO'
             })
 
-            console.log(flightPlanCoordinates)
-
             var endMarker = new google.maps.Marker({
                 position: endMarkerPosition,
                 map: map,
@@ -177,27 +225,36 @@
             })
 
             // With Google Roads API
-            // var TheURL = theurl.concat("&interpolate=true&key=AIzaSyBNPUIW6WUc1Cg5sQfivG0loxKZj1Bn9zE")
-            // client.get(TheURL, function (response) {
-            //     var response1 = JSON.parse(response);
-            //     for (let i = 0; i < response1.snappedPoints.length; i++) {
-            //         flightPlanCoordinates.push({
-            //             lat: response1.snappedPoints[i].location.latitude,
-            //             lng: response1.snappedPoints[i].location.latitude
-            //         })
-            //     }
-            // })
-
-            var flightPath = new google.maps.Polyline({ // Parametros de entrada para Polilinea
-                path: flightPlanCoordinates,
-                geodesic: true,
-                strokeColor: '#FF0000',
-                strokeOpacity: 1.0,
-                strokeWeight: 2
-            });
-            flightPath.setMap(map);
+            if (bandera == 1) {
+                var TheURL = theurl.concat("&interpolate=true&key=AIzaSyBNPUIW6WUc1Cg5sQfivG0loxKZj1Bn9zE")
+                console.log(TheURL)
+                client.get(TheURL, function (response) {
+                    var response1 = JSON.parse(response);
+                    for (let i = 0; i < response1.snappedPoints.length; i++) {
+                        flightPlanCoordinates.push({
+                            lat: response1.snappedPoints[i].location.latitude,
+                            lng: response1.snappedPoints[i].location.longitude
+                        })
+                    }
+                    drawPolylines(flightPlanCoordinates)
+                })
+                bandera = 0;
+            }
+            function drawPolylines() {
+                console.log(flightPlanCoordinates)
+                var flightPath = new google.maps.Polyline({ // Parametros de entrada para Polilinea
+                    path: flightPlanCoordinates,
+                    geodesic: true,
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 4
+                });
+                flightPath.setMap(map);
+            }
         }
     </script>
+    <!-- <script src="../bootstrap/vendor/jquery/jquery.min.js"></script> -->
+    <script src="../bootstrap/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCBOaRqI8IcgcQlXj5Evtv-0KgcHccWbeM&callback=initMap"> </script>
     <h1 style="text-align:center" id="test"></h1>
     <h2></h2>

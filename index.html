@@ -35,7 +35,7 @@
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#811411">
     <div class="container">
-      <a class="navbar-brand" style="font-size:25px ; font-family:sans-serif" href="#">AquiToy
+      <a class="navbar-brand" style="font-size:25px ; font-family:sans-serif" onclick="locationReload()" href="#" >AquiToy
         <img style="width:35px" src="img/logo.svg">
       </a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive"
@@ -78,11 +78,16 @@
       window.location.href = "/pages/historial.html";
     }
 
+    function locationReload(){
+      location.reload()
+    }
+
     function initMap() {
       var bandera = 1; //Bandera para inicializar mapa en centro junto con animacion DROP
 
       // Inicializacion de Variables Google Maps
       var marker = new google.maps.Marker({});
+      var trafficLayer = new google.maps.TrafficLayer();
       var map = new google.maps.Map(document.getElementById('map'), {
         zoom: 14,
         center: { lat: 10, lng: -74 }
@@ -125,8 +130,10 @@
         marker = new google.maps.Marker({ // Marcador 
           position: uluru,
           map: map,
-          title: 'Holi'
+          title: 'AquiToy'
         });
+
+        trafficLayer.setMap(map);
 
         if (bandera == 1) { // Inicializacion para animacion DROP 
           marker.setAnimation(google.maps.Animation.DROP)

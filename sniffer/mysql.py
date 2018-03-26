@@ -63,12 +63,11 @@ def main():
 
             dias = str(dias)
 
-            dateD=datetime(Year,Month,Day,H,M,S)
-            print(dateD)
+            date2time=datetime(Year,Month,Day,H,M,S)
+            print(date2time)
             #date2time=datetime(2018,3,21,2,H,M,S)
 			#print ((dt - datetime(1969, 12, 31,19,00,00)).total_seconds()*1000-1521615600000)
-            #timems=(date2time - datetime(1969, 12, 31,19,00,00)).total_seconds()*1000-1521615600000
-            timems=1
+            timems=(date2time - datetime(1969, 12, 31,19,00,00)).total_seconds()*1000
             base = (lat, lon, hora, timems)
 
             cursor.execute(insertar, base)

@@ -178,11 +178,9 @@
                 // flightPlanCoordinates.push({ lat: Number(data[0][i]), lng: Number(data[1][i]) })
             }
             console.log(data)
-            console.log(data[0].length)
             bandera = 1;
             initMap(bandera, theurl, data)
         }
-
 
         function initMap() {
             var startMarker = new google.maps.Marker({});
@@ -190,7 +188,8 @@
             var center = { lat: 10.986532, lng: -74.809226 }
             var startMarkerPosition = { lat: 0, lng: 0 }
             var endMarkerPosition = { lat: 0, lng: 0 }
-            if (bandera == 1) { // Centrar mapaen recorrido historico
+
+            if (bandera == 1) { // Centrar mapa en recorrido historico
                 center = {
                     lat: Number(data[0][Math.round(data.length / 2)]),
                     lng: Number(data[1][Math.round(data.length / 2)])
@@ -241,7 +240,6 @@
                 bandera = 0;
             }
             function drawPolylines() {
-                console.log(flightPlanCoordinates)
                 var flightPath = new google.maps.Polyline({ // Parametros de entrada para Polilinea
                     path: flightPlanCoordinates,
                     geodesic: true,

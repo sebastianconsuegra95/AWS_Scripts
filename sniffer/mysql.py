@@ -63,7 +63,7 @@ def main():
 
             dias = str(dias)
 
-            date2time=datetime(Year,Month,Day,H,M,S)
+            date2time=datetime(int(Year),int(Month),int(Day),int(H),int(M),int(S))
             print(date2time)
             #date2time=datetime(2018,3,21,2,H,M,S)
 			#print ((dt - datetime(1969, 12, 31,19,00,00)).total_seconds()*1000-1521615600000)

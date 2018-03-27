@@ -122,7 +122,7 @@
 
         function generateSTcode() {
             var timems_1 = 240;
-            var timems_2 = 254;
+            var timems_2 = 250;
             //Data of calendar and hours
             var DATE_1 = new Date($("#date1").datepicker("getDate"))
             var date_1 = [DATE_1.getDate(), DATE_1.getMonth(), DATE_1.getFullYear()];
@@ -142,9 +142,6 @@
             var date_2_UTC = new Date(date_2[2], date_2[1], date_2[0], time_2[0], time_2[1])
             date_2_UTC = date_2_UTC.getTime() //Time in miliseconds
 
-            document.cookie = "timems_1=" + timems_1 + " " //JS variable to PHP
-            document.cookie = "timems_2=" + timems_2 + " " //JS variable to PHP
-
             // Traduccion de archivo php a script
             var infodb = function () {
                 var temporal = null;
@@ -153,6 +150,7 @@
                     'type': "POST",
                     'global': false,
                     'dataType': 'html',
+                    'data': { posttimems1: timems_1, posttimems2: timems_2 },
                     'url': "../historicalGet.php",
                     'success': function (data) {
                         temporal = data;

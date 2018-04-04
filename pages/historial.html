@@ -10,7 +10,6 @@
 
     <!-- Local Sources -->
     <script src="../http.js"></script>
-    <link rel="stylesheet" href="../css/webstyle.css">
 
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -34,7 +33,7 @@
         /* Difinicion de Layout para google Maps  */
 
         #map {
-            height: 500px;
+            height: 605px;
             width: 100%;
         }
     </style>
@@ -47,15 +46,14 @@
 
     <!-- Bootstrap core CSS -->
     <link href="../bootstrap/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-
+    <link href="../css/webstyle.css" rel="stylesheet">
     <!-- Custom styles for this template -->
 </head>
 
 <body>
-
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#811411">
         <div class="container">
-            <a class="navbar-brand" style="font-size:25px ; font-family:sans-serif" href="#">AquiToy
+            <a class="navbar-brand" style="font-size:35px ; font-family:sans-serif" href="#">AquiToy
                 <img style="width:35px" src="../img/logo.svg">
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive"
@@ -63,35 +61,39 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarResponsive">
-                <ul class="navbar-nav ml-auto">
+                <ul class="navbar-nav ml-auto" style="font-size:17px">
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="navTimeRealPage()">Tiempo Real</a>
+                        <a class="nav-link" href="#" onclick="navTimeRealPage()">
+                            Tiempo Real
+                        </a>
                     </li>
                     <li class="nav-item active">
                         <a class="nav-link" href="#">Historicos
                             <span class="sr-only">(current)</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Services</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Contact</a>
-                    </li>
                 </ul>
             </div>
         </div>
     </nav>
-    <!-- <section> -->
-    <div id="map"></div>
-    <!-- </section> -->
+
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-bottom" style="background-color:#811411;right:300px;left:300px;border-top-right-radius:15px;border-top-left-radius:15px">
+        <div style="width:700px; text-align:center;color:white ">
+            <div>
+                Digite la ventana de tiempo
+            </div>
+            <button onclick="generateSTcode()">Enviar</button>
+            <input type="text" id="date1" style="border-radius:8px;width:130px; text-align:center" />
+            <input type="text" id="time1" style="border-radius:8px;width:80px; text-align:center" /> a
+            <input type="text" id="date2" style="border-radius:8px;width:130px;text-align:center" />
+            <input type="text" id="time2" style="border-radius:8px;width:80px;text-align:center" />
+        </div>
+    </nav>
+
+    <section>
+        <div id="map"></div>
+    </section>
     <!-- Historical Data Input -->
-    <p class="order">
-        <input type="text" id="date1" />
-        <input type="text" id="time1" /> to
-        <input type="text" id="date2" />
-        <input type="text" id="time2" />
-    </p>
     <script>
         //Start Class for timepicker
         $('#time1').timepicker({
@@ -103,8 +105,6 @@
             'timeFormat': 'H:i:s'
         });
     </script>
-
-    <button onclick="generateSTcode()">Enviar</button>
 
     <script>
         var timems_1 = 240;
@@ -121,8 +121,6 @@
         }
 
         function generateSTcode() {
-            var timems_1 = 240;
-            var timems_2 = 250;
             //Data of calendar and hours
             var DATE_1 = new Date($("#date1").datepicker("getDate"))
             var date_1 = [DATE_1.getDate(), DATE_1.getMonth(), DATE_1.getFullYear()];
@@ -150,7 +148,7 @@
                     'type': "POST",
                     'global': false,
                     'dataType': 'html',
-                    'data': { posttimems1: timems_1, posttimems2: timems_2 },
+                    'data': { posttimems1: date_1_UTC, posttimems2: date_2_UTC },
                     'url': "../historicalGet.php",
                     'success': function (data) {
                         temporal = data;

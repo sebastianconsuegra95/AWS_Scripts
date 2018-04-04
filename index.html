@@ -35,7 +35,7 @@
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#811411">
     <div class="container">
-      <a class="navbar-brand" style="font-size:25px ; font-family:sans-serif" onclick="locationReload()" href="#">AquiToy
+      <a class="navbar-brand" style="font-size:35px ; font-family:sans-serif" onclick="locationReload()" href="#">AquiToy
         <img style="width:35px" src="img/logo.svg">
       </a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive"
@@ -43,7 +43,7 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarResponsive">
-        <ul class="navbar-nav ml-auto">
+        <ul class="navbar-nav ml-auto" style="font-size:17px">
           <li class="nav-item active">
             <a class="nav-link" href="#">Tiempo Real
               <span class="sr-only">(current)</span>
@@ -51,12 +51,6 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#" onclick="navHistoricalPage()">Historicos</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Services</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Contact</a>
           </li>
         </ul>
       </div>
@@ -125,7 +119,7 @@
             center: uluru
           });
         }
-
+        console.log(data)
         marker.setMap(null);
         marker = new google.maps.Marker({ // Marcador 
           position: uluru,

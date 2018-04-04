@@ -56,10 +56,11 @@ def main():
                 S="0"+S
                 
 
-            #fecha = fecha.strftime('%m/%d/%Y')
+            fecha2 = fecha.strftime('%m/%d/%Y')
             Month = fecha.strftime('%m')
             Day   = fecha.strftime('%d')
             Year  = fecha.strftime('%Y')
+            hora = fecha2 + "   " + str(H) + ":" + str(M) + ":" + str(S)
 
             dias = str(dias)
 
@@ -67,8 +68,12 @@ def main():
             print(date2time)
             #date2time=datetime(2018,3,21,2,H,M,S)
 			#print ((dt - datetime(1969, 12, 31,19,00,00)).total_seconds()*1000-1521615600000)
-            timems=(date2time - datetime(1969, 12, 31,19,00,00)).total_seconds()*1000
-            base = (lat, lon, hora, timems)
+            timems=int((date2time - datetime(1969, 12, 31,19,00,00)).total_seconds()*1000)
+            timems=str(timems)
+            print(timems)
+            timems=int(timems[0:len(timems)-3])
+            print(timems)
+            base = (lat, lon, hora,timems)
 
             cursor.execute(insertar, base)
 

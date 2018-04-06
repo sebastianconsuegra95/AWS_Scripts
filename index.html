@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
   <!-- <link rel="stylesheet" href="/resources/demos/style.css"> -->
   <script src="http.js"></script>
+  <script src="traffic.js"></script>
   <link rel="stylesheet" href="/css/webstyle.css">
   <style>
     /* Difinicion de Layout para google Maps  */
@@ -59,9 +60,9 @@
 
   <!-- Page Content -->
 
-  <section>
-    <div id="map"></div>
-  </section>
+
+  <div id="map"></div>
+
 
   <script>
     var client = httpclient();
@@ -86,12 +87,14 @@
         zoom: 14,
         center: { lat: 10, lng: -74 }
       });
+
       // Funcion para obtener valores de GET.PHP
       getter();
       setInterval(getter, 7000);
 
       function getter() {
         // Traduccion de archivo php a script
+
         var infodb = function () {
           var temporal = null;
           $.ajax({
@@ -118,7 +121,14 @@
             zoom: 14,
             center: uluru
           });
+          trafficLayer.setMap(map) // Encendemos la vizualizacion de trafico
+          // Seccion para inicializar boton en mapa google
+          var centerControlDiv = document.createElement('div');
+          var centerControl = new CenterControl(centerControlDiv, map, trafficLayer);
+          centerControlDiv.index = 1;
+          map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
         }
+
         marker.setMap(null);
         marker = new google.maps.Marker({ // Marcador 
           position: uluru,
@@ -126,28 +136,10 @@
           title: 'AquiToy'
         });
 
-        trafficLayer.setMap(map);
-
         if (bandera == 1) { // Inicializacion para animacion DROP 
           marker.setAnimation(google.maps.Animation.DROP)
           bandera = 0;
         }
-
-        // var theurl = 'https://roads.googleapis.com/v1/snapToRoads?path='       // En caso de Ejemplo:10.995020,-74.813117|10.995942,-74.814807|10.996171,-74.8149351|10.996042,-74.815172|10.996260,-74.815577|10.996237,-74.815963|10.995989,-74.816011|10.995804,-74.816326|10.996203,-74.817371
-        // theurl = theurl.concat(data[0], ",", data[1])
-        // var TheURL = theurl.concat("&interpolate=true&key=AIzaSyBNPUIW6WUc1Cg5sQfivG0loxKZj1Bn9zE")
-        // client.get(TheURL, function (response) {
-        //   var response1 = JSON.parse(response);
-
-        //   flightPlanCoordinates.push({
-        //     lat: response1.snappedPoints[response1.snappedPoints.length - 1].location.latitude,
-        //     lng: response1.snappedPoints[response1.snappedPoints.length - 1].location.longitude
-        //   })
-
-        // })
-        // theurl = theurl.concat("|")
-
-        //flightPlanCoordinates.push({ lat: Number(data[0]), lng: Number(data[1]) }) // Push Vector para graficar polilinea
 
         var flightPath = new google.maps.Polyline({ // Parametros de entrada para Polilinea
           path: flightPlanCoordinates,

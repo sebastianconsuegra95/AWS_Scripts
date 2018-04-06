@@ -11,6 +11,7 @@
     <!-- Local Sources -->
     <script src="../http.js"></script>
 
+
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
@@ -83,6 +84,7 @@
                 Digite la ventana de tiempo
             </div>
             <button onclick="generateSTcode()">Enviar</button>
+            <button onclick="startSimulation()">Simulación</button>
             <input type="text" id="date1" style="border-radius:8px;width:130px; text-align:center" />
             <input type="text" id="time1" style="border-radius:8px;width:80px; text-align:center" /> a
             <input type="text" id="date2" style="border-radius:8px;width:130px;text-align:center" />
@@ -107,20 +109,25 @@
     </script>
 
     <script>
-        var timems_1 = 240;
-        var timems_2 = 254;
         var client = httpclient(); // Request for google roads api
+        var k = 0
         var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
         var bandera = 0; //Bandera para centrar mapa en mitad de recorrido historico
-        var theurl = 'https://roads.googleapis.com/v1/snapToRoads?path='
+        var theurl = [];
         var data = [[], []] //Array Multi for save historical data (lat, lng)
-
+        var flightPath = []
+        var algo = []
 
         function navTimeRealPage() {
             window.location.href = '../index.html'
         }
 
         function generateSTcode() {
+            window.clearInterval(algo)
+            flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
+            theurl = []; //Url para request
+            data = [[], []] //Array Multi for save historical data (lat, lng)
+            flightPath = []
             //Data of calendar and hours
             var DATE_1 = new Date($("#date1").datepicker("getDate"))
             var date_1 = [DATE_1.getDate(), DATE_1.getMonth(), DATE_1.getFullYear()];
@@ -135,10 +142,14 @@
             var time_2 = [TIME_2.getHours(), TIME_2.getMinutes()]
 
             var date_1_UTC = new Date(date_1[2], date_1[1], date_1[0], time_1[0], time_1[1])
-            date_1_UTC = date_1_UTC.getTime() //Time in miliseconds
+            date_1_UTC = String(date_1_UTC.getTime()) //Time in miliseconds
+            date_1_UTC = date_1_UTC.slice(0, 10)
 
             var date_2_UTC = new Date(date_2[2], date_2[1], date_2[0], time_2[0], time_2[1])
-            date_2_UTC = date_2_UTC.getTime() //Time in miliseconds
+            date_2_UTC = String(date_2_UTC.getTime()) //Time in miliseconds
+            date_2_UTC = date_2_UTC.slice(0, 10)
+
+            console.log(date_1_UTC, date_2_UTC)
 
             // Traduccion de archivo php a script
             var infodb = function () {
@@ -159,23 +170,32 @@
             if (infodb == null) {
                 infodb = "";
             }
-
             infodb = infodb.split(" ")
-            console.log(infodb)
-            theurl = 'https://roads.googleapis.com/v1/snapToRoads?path='
-            for (let i = 0; i < infodb.length / 2; i++) {
-                data[0][i] = infodb[i]
-                data[1][i] = infodb[i + infodb.length / 2]
-                //With Google Roads API
-                theurl = theurl.concat(data[0][i], ",", data[1][i])
-                if (i != infodb.length / 2 - 1) {
-                    theurl = theurl.concat("|")
+
+            var totalPoints = infodb.length / 2; //Total de puntos obtenidos de la base da datos
+            k = Math.ceil(totalPoints / 100)
+            var firstPoint = 0
+            var endPoint = 0
+            //Ciclo for con ventanas de 100 puntos para hacer request
+            for (let j = 0; j < k; j++) {
+                theurl[j] = 'https://roads.googleapis.com/v1/snapToRoads?path='
+                if (j == k - 1) {
+                    endPoint = totalPoints
+                } else {
+                    endPoint = firstPoint + 100
                 }
-                // flightPlanCoordinates.push({ lat: Number(data[0][i]), lng: Number(data[1][i]) })
+                for (let i = firstPoint; i < endPoint; i++) {
+                    data[0][i] = infodb[i]
+                    data[1][i] = infodb[i + infodb.length / 2]
+                    theurl[j] = theurl[j].concat(data[0][i], ",", data[1][i])
+                    if (i != endPoint - 1) {
+                        theurl[j] = theurl[j].concat("|")
+                    }
+                }
+                firstPoint = endPoint
             }
-            console.log(data)
             bandera = 1;
-            initMap(bandera, theurl, data)
+            initMap(bandera, theurl, data, k)
         }
 
         function initMap() {
@@ -221,23 +241,39 @@
 
             // With Google Roads API
             if (bandera == 1) {
-                var TheURL = theurl.concat("&interpolate=true&key=AIzaSyBNPUIW6WUc1Cg5sQfivG0loxKZj1Bn9zE")
-                console.log(TheURL)
-                client.get(TheURL, function (response) {
-                    var response1 = JSON.parse(response);
-                    for (let i = 0; i < response1.snappedPoints.length; i++) {
-                        flightPlanCoordinates.push({
-                            lat: response1.snappedPoints[i].location.latitude,
-                            lng: response1.snappedPoints[i].location.longitude
-                        })
-                    }
-                    drawPolylines(flightPlanCoordinates)
-                })
+                //Ciclo for para hacer request con ventanas de 100 puntos
+                for (let j = 0; j < k; j++) {
+                    var TheURL = theurl[j].concat("&interpolate=true&key=AIzaSyBNPUIW6WUc1Cg5sQfivG0loxKZj1Bn9zE")
+                    client.get(TheURL, function (response) {
+                        var response1 = JSON.parse(response);
+                        for (let i = 0; i < response1.snappedPoints.length; i++) {
+                            flightPlanCoordinates.push({
+                                lat: response1.snappedPoints[i].location.latitude,
+                                lng: response1.snappedPoints[i].location.longitude
+                            })
+                        }
+                        if (j == k - 1) {
+                            drawPolylines(flightPlanCoordinates)
+                        }
+                    })
+                }
                 bandera = 0;
             }
+
+            var lineSymbol = { // Inicializar valores de simbolo para animacion
+                path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                scale: 4,
+                strokeColor: '#000000',
+                fillColor: '#000000',
+            };
+
             function drawPolylines() {
-                var flightPath = new google.maps.Polyline({ // Parametros de entrada para Polilinea
+                flightPath = new google.maps.Polyline({ // Parametros de entrada para Polilinea
                     path: flightPlanCoordinates,
+                    icons: [{
+                        icon: lineSymbol,
+                        offset: '100%'
+                    }],
                     geodesic: true,
                     strokeColor: '#FF0000',
                     strokeOpacity: 1.0,
@@ -246,6 +282,18 @@
                 flightPath.setMap(map);
             }
         }
+
+        function startSimulation() { //Correr animacion 
+            var count = 0;
+            algo = window.setInterval(function () {
+                count = (count + 1) % 400;
+
+                var icons = flightPath.get('icons');
+                icons[0].offset = (count / 4) + '%';
+                flightPath.set('icons', icons);
+            }, 25);
+        }
+
     </script>
     <!-- <script src="../bootstrap/vendor/jquery/jquery.min.js"></script> -->
     <script src="../bootstrap/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>

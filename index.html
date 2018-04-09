@@ -70,6 +70,7 @@
     var vectorURLPoints = [];
     var stateSystem = []
     var data = []
+    var icon = ''
 
     function navHistoricalPage() {
       window.location.href = "/pages/historial.html";
@@ -89,7 +90,6 @@
         zoom: 14,
         center: { lat: 10, lng: -74 }
       });
-
 
       // Funcion para obtener valores de GET.PHP
       getter();
@@ -117,12 +117,15 @@
         }
         data = infodb.split("\n")
         //Definimos si el sistema se encuentra online o offline
-        if ((data[3] == stateSystem) & (stateSystem)) {
+        var algo = document.createElement('div');
+        if ((data[3] == stateSystem) && (stateSystem)) {
           console.log('sistema apagado', data[3], stateSystem)
           var text = 'Offline'
+          icon = '/img/iconpin.png'
         } else if (stateSystem) {
           console.log('sistema encendido', data[3], stateSystem)
           var text = 'Online'
+          icon = ''
         }
 
         var uluru = { lat: Number(data[0]), lng: Number(data[1]) }; // Posicion geografica
@@ -135,23 +138,17 @@
           trafficLayer.setMap(map) // Encendemos la vizualizacion de trafico
           // Seccion para inicializar boton en mapa google
           var centerControlDiv = document.createElement('div');
-          var centerControl = new CenterControl(1, centerControlDiv, map, trafficLayer);
+          var centerControl = new CenterControl(centerControlDiv, map, trafficLayer);
           centerControlDiv.index = 1;
           map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
-
-          var stateBoxSystem = document.createElement('div');
-          var boxSystem = new CenterControl(2, stateBoxSystem, text);
-          stateBoxSystem.index = 1;
         }
-        console.log(boxSystem.text)
-        boxSystem.text = "holaaa"
-        map.controls[google.maps.ControlPosition.LEFT_TOP].push(stateBoxSystem);
 
         marker.setMap(null);
         marker = new google.maps.Marker({ // Marcador 
           position: uluru,
           map: map,
-          title: 'AquiToy'
+          title: 'AquiToy',
+          icon: icon
         });
 
         if (bandera == 1) { // Inicializacion para animacion DROP 
@@ -167,6 +164,7 @@
           strokeWeight: 2
         });
         flightPath.setMap(map);
+
       }
     }
   </script>

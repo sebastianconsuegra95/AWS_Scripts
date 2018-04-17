@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Proyecto Diseño MJSF</title>
+    <title>AquiToy</title>
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
     <!-- Https Source for datepicker -->
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -10,7 +10,10 @@
 
     <!-- Local Sources -->
     <script src="../http.js"></script>
+    <script src="../zoom.js"></script>
 
+    <!-- Icono de pestaña -->
+    <link rel="shortcut icon" href="../img/logo.ico" />
 
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -25,16 +28,20 @@
             $("#date1").datepicker({
                 dateFormat: "dd/mm/yy"
             });
-            $("#date2").datepicker({
-                dateFormat: "dd/mm/yy"
-            });
+            $("#date1").change(function () {
+                $("#date2").datepicker({
+                    dateFormat: "dd/mm/yy",
+                    minDate: new Date($("#date1").datepicker("getDate")),
+                    maxDate: 0
+                });
+            })
         });
     </script>
     <style>
         /* Difinicion de Layout para google Maps  */
 
         #map {
-            height: 605px;
+            height: 585px;
             width: 100%;
         }
     </style>
@@ -89,6 +96,7 @@
             <input type="text" id="time1" style="border-radius:8px;width:80px; text-align:center" /> a
             <input type="text" id="date2" style="border-radius:8px;width:130px;text-align:center" />
             <input type="text" id="time2" style="border-radius:8px;width:80px;text-align:center" />
+
         </div>
     </nav>
 
@@ -100,15 +108,22 @@
         //Start Class for timepicker
         $('#time1').timepicker({
             'showDuration': true,
-            'timeFormat': 'H:i:s'
+            'timeFormat': 'h:ia',
         });
-        $('#time2').timepicker({
-            'showDuration': true,
-            'timeFormat': 'H:i:s'
+        var timeNow = new Date()
+        $('#time1').on('changeTime', function () {
+            $('#time2').timepicker({
+                'showDuration': true,
+                'timeFormat': 'h:ia',
+                'minTime': $(this).val(),
+                'maxTime': '12:00am'
+                // 'disableTimeRanges': [['12:00am', $(this).val()], ['12:00pm', $(this).val()]]
+            });
         });
     </script>
 
     <script>
+
         var client = httpclient(); // Request for google roads api
         var k = 0
         var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
@@ -116,7 +131,14 @@
         var theurl = [];
         var data = [[], []] //Array Multi for save historical data (lat, lng)
         var flightPath = []
+        var flightPathTemporal = []
         var algo = []
+        var temporal = []
+        var map = []
+        var date_1_DrawTime = []
+        var date_2_DrawTime = []
+        var valuesLat = []
+        var valuesLng = []
 
         function navTimeRealPage() {
             window.location.href = '../index.html'
@@ -127,7 +149,7 @@
             flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
             theurl = []; //Url para request
             data = [[], []] //Array Multi for save historical data (lat, lng)
-            flightPath = []
+            temporal = []
             //Data of calendar and hours
             var DATE_1 = new Date($("#date1").datepicker("getDate"))
             var date_1 = [DATE_1.getDate(), DATE_1.getMonth(), DATE_1.getFullYear()];
@@ -141,12 +163,22 @@
             var TIME_2 = new Date($("#time2").timepicker("getTime"))
             var time_2 = [TIME_2.getHours(), TIME_2.getMinutes()]
 
+            //IF para no correr la funcion hasta que se encuentren todos los argumentos necesarios
+            if (($("#date1").val()) && ($("#date2").val()) && ($("#time1").val()) && ($("#time2").val())) {
+
+            } else {
+                alert('Faltan argumentos por llenar')
+                return
+            }
+
             var date_1_UTC = new Date(date_1[2], date_1[1], date_1[0], time_1[0], time_1[1])
             date_1_UTC = String(date_1_UTC.getTime()) //Time in miliseconds
+            date_1_DrawTime = date_1_UTC
             date_1_UTC = date_1_UTC.slice(0, 10)
 
             var date_2_UTC = new Date(date_2[2], date_2[1], date_2[0], time_2[0], time_2[1])
             date_2_UTC = String(date_2_UTC.getTime()) //Time in miliseconds
+            date_2_DrawTime = date_2_UTC
             date_2_UTC = date_2_UTC.slice(0, 10)
 
             console.log(date_1_UTC, date_2_UTC)
@@ -161,7 +193,7 @@
                     'dataType': 'html',
                     'data': { posttimems1: date_1_UTC, posttimems2: date_2_UTC },
                     'url': "../historicalGet.php",
-                    'success': function (data) {
+                    'success': function (data, data2) {
                         temporal = data;
                     }
                 });
@@ -187,6 +219,12 @@
                 for (let i = firstPoint; i < endPoint; i++) {
                     data[0][i] = infodb[i]
                     data[1][i] = infodb[i + infodb.length / 2]
+                    temporal.push({
+                        lat: Number(data[0][i]),
+                        lng: Number(data[1][i])
+                    })
+                    valuesLat[i] = Number(data[0][i])
+                    valuesLng[i] = Number(data[1][i])
                     theurl[j] = theurl[j].concat(data[0][i], ",", data[1][i])
                     if (i != endPoint - 1) {
                         theurl[j] = theurl[j].concat("|")
@@ -195,7 +233,7 @@
                 firstPoint = endPoint
             }
             bandera = 1;
-            initMap(bandera, theurl, data, k)
+            initMap(bandera, theurl, k, temporal, valuesLat, valuesLng, data)
         }
 
         function initMap() {
@@ -206,10 +244,7 @@
             var endMarkerPosition = { lat: 0, lng: 0 }
 
             if (bandera == 1) { // Centrar mapa en recorrido historico
-                center = {
-                    lat: Number(data[0][Math.round(data.length / 2)]),
-                    lng: Number(data[1][Math.round(data.length / 2)])
-                }
+
                 startMarkerPosition = {
                     lat: Number(data[0][0]),
                     lng: Number(data[1][0])
@@ -220,8 +255,8 @@
                 }
             }
             // Inicializacion de Variables Google Maps
-            var map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 13,
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 15,
                 center: center
             });
 
@@ -253,7 +288,7 @@
                             })
                         }
                         if (j == k - 1) {
-                            drawPolylines(flightPlanCoordinates)
+                            drawPolylines(flightPlanCoordinates, temporal, valuesLat, valuesLng)
                         }
                     })
                 }
@@ -268,19 +303,72 @@
             };
 
             function drawPolylines() {
-                flightPath = new google.maps.Polyline({ // Parametros de entrada para Polilinea
-                    path: flightPlanCoordinates,
+                // flightPath = new google.maps.Polyline({ // Parametros de entrada para Polilinea
+                //     path: flightPlanCoordinates,
+                //     geodesic: true,
+                //     strokeColor: '#FF0000',
+                //     strokeOpacity: 1.0,
+                //     strokeWeight: 4
+                // });
+                // flightPath.setMap(map);
+
+                flightPathTemporal = new google.maps.Polyline({ // Parametros de entrada para Polilinea
+                    path: temporal,
                     icons: [{
                         icon: lineSymbol,
                         offset: '100%'
                     }],
                     geodesic: true,
-                    strokeColor: '#FF0000',
+                    strokeColor: '#0000FF',
                     strokeOpacity: 1.0,
                     strokeWeight: 4
                 });
-                flightPath.setMap(map);
+                flightPathTemporal.setMap(map);
+                drawInvisibleMarkers(temporal, map, date_2_DrawTime, date_1_DrawTime, valuesLat, valuesLng)
             }
+
+        }
+
+        function drawInvisibleMarkers() {
+            var interval = Number((Number(date_2_DrawTime) - Number(date_1_DrawTime)) / temporal.length)
+            var date = Number(date_1_DrawTime)
+            for (let i = 0; i < temporal.length; i++) {
+                var dateString = new Date()
+                dateString.setTime(date)
+                var invisibleMarkers = new google.maps.Marker({
+                    position: temporal[i],
+                    icon: '../img/invisibleIcon.png',
+                    map: map,
+                    title: dateString.toDateString() + ' ' + dateString.toTimeString()
+                })
+                date = date + interval
+            }
+            modifyZoomMapAndCenter(map, temporal, valuesLat, valuesLng)
+        }
+
+        function modifyZoomMapAndCenter() {
+            //Calculamos los puntos extremos
+            var P_Left = Math.min.apply(null, valuesLng)
+            var P_Right = Math.max.apply(null, valuesLng)
+            var P_Top = Math.max.apply(null, valuesLat)
+            var P_Bottom = Math.min.apply(null, valuesLat)
+            //Calculamos las esquinas del rectanculo
+            var positionBottom = valuesLat.indexOf(P_Bottom)
+            var pointBottomLeft = [P_Bottom, valuesLng[positionBottom] + (P_Left - valuesLng[positionBottom])]
+            var positionTop = valuesLat.indexOf(P_Top)
+            var pointTopRight = [P_Top, valuesLng[positionTop] - (valuesLng[positionTop] - P_Right)]
+            //Calculamos la distancia entre las dos esquinas para calcular centro de la ventana
+            var distance = Math.sqrt(Math.pow(pointBottomLeft[0] - pointTopRight[0], 2) + Math.pow(pointBottomLeft[1] - pointTopRight[1], 2))
+            var centro = {
+                lat: (pointBottomLeft[0] + pointTopRight[0]) / 2,
+                lng: (pointBottomLeft[1] + pointTopRight[1]) / 2
+            }
+            map.setCenter(centro)
+            //Calculamos zoom de la ventana
+            var $mapDiv = $('#map');
+            var mapDim = { height: $mapDiv.height(), width: $mapDiv.width() };
+            var zoom = calculateZoom([{ lat: pointBottomLeft[0], lng: pointBottomLeft[1] }, { lat: pointTopRight[0], lng: pointTopRight[1] }], mapDim, $mapDiv, map)
+            map.setZoom(zoom)
         }
 
         function startSimulation() { //Correr animacion 
@@ -288,9 +376,9 @@
             algo = window.setInterval(function () {
                 count = (count + 1) % 400;
 
-                var icons = flightPath.get('icons');
+                var icons = flightPathTemporal.get('icons');
                 icons[0].offset = (count / 4) + '%';
-                flightPath.set('icons', icons);
+                flightPathTemporal.set('icons', icons);
             }, 25);
         }
 

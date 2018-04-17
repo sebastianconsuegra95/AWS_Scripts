@@ -14,11 +14,10 @@
     /* Difinicion de Layout para google Maps  */
 
     #map {
-      height: 605px;
+      height: 585px;
       width: 100%;
     }
   </style>
-
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
@@ -27,8 +26,8 @@
   <!-- Bootstrap core CSS -->
   <link href="bootstrap/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Custom styles for this template -->
-
+  <!-- Icono de pestaña -->
+  <link rel="shortcut icon" href="/img/logo.ico" />
 </head>
 
 <body>
@@ -70,7 +69,7 @@
     var vectorURLPoints = [];
     var stateSystem = []
     var data = []
-    var icon = ''
+    var icon = '/img/iconpin.png'
 
     function navHistoricalPage() {
       window.location.href = "/pages/historial.html";
@@ -93,7 +92,7 @@
 
       // Funcion para obtener valores de GET.PHP
       getter();
-      setInterval(getter, 7000);
+      setInterval(getter, 9000);
 
       function getter() {
         // Traduccion de archivo php a script
@@ -129,7 +128,7 @@
         }
 
         var uluru = { lat: Number(data[0]), lng: Number(data[1]) }; // Posicion geografica
-
+        flightPlanCoordinates.push(uluru)
         if (bandera == 1) { //Inicializacion para centro de mapa en marcador
           map = new google.maps.Map(document.getElementById('map'), {
             zoom: 14,
@@ -142,7 +141,6 @@
           centerControlDiv.index = 1;
           map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
         }
-
         marker.setMap(null);
         marker = new google.maps.Marker({ // Marcador 
           position: uluru,

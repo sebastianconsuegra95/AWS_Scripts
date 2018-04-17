@@ -367,7 +367,8 @@
             //Calculamos zoom de la ventana
             var $mapDiv = $('#map');
             var mapDim = { height: $mapDiv.height(), width: $mapDiv.width() };
-            var zoom = calculateZoom([{ lat: pointBottomLeft[0], lng: pointBottomLeft[1] }, { lat: pointTopRight[0], lng: pointTopRight[1] }], mapDim, $mapDiv, map)
+            var zoom = calculateZoom([{ lat: pointBottomLeft[0], lng: pointBottomLeft[1] }, { lat: pointTopRight[0], lng: pointTopRight[1] }], mapDim, $mapDiv)
+            console.log(zoom)
             map.setZoom(zoom)
         }
 

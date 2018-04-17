@@ -12,7 +12,7 @@
 //     width: $mapDiv.width()
 // }
 
-function calculateZoom(points, mapDim, $mapDiv, map) {
+function calculateZoom(points, mapDim, $mapDiv) {
 
     function getBoundsZoomLevel(bounds, mapDim) {
         var WORLD_DIM = { height: 256, width: 256 };

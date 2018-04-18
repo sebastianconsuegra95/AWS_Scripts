@@ -132,7 +132,7 @@
         var data = [[], []] //Array Multi for save historical data (lat, lng)
         var flightPath = []
         var flightPathTemporal = []
-        var algo = []
+        var windowSimulation = []
         var temporal = []
         var map = []
         var date_1_DrawTime = []
@@ -145,7 +145,7 @@
         }
 
         function generateSTcode() {
-            window.clearInterval(algo)
+            window.clearInterval(windowSimulation)
             flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
             theurl = []; //Url para request
             data = [[], []] //Array Multi for save historical data (lat, lng)
@@ -374,7 +374,7 @@
 
         function startSimulation() { //Correr animacion 
             var count = 0;
-            algo = window.setInterval(function () {
+            windowSimulation = window.setInterval(function () {
                 count = (count + 1) % 400;
 
                 var icons = flightPathTemporal.get('icons');

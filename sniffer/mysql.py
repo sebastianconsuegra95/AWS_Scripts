@@ -17,7 +17,7 @@ def main():
 
     conn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     conn.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
-    HOST = "172.31.90.245"
+    HOST = "172.31.90.245"  
     conn.bind((HOST, 10701))
 
     while True:

@@ -4,7 +4,7 @@ $conn = new mysqli("mydbdiseno2.crn0fxtqoene.us-east-1.rds.amazonaws.com", "root
 
 
 // Realizar una consulta MySQL
-$query = "SELECT * FROM syrus ORDER BY id DESC LIMIT 1"; // ultimo valor de la tabla llamada datos
+$query = "SELECT * FROM syrus_00_ ORDER BY id DESC LIMIT 1"; // ultimo valor de la tabla llamada datos
 $resultado = mysqli_query($conn, $query) or die("Consulta fallida: " . mysqli_error()); // guardo en resultado lo que saqué de query
 
 $fila = mysqli_fetch_row($resultado); // guardo en un array lo que está en resultado, como string

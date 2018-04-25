@@ -9,11 +9,12 @@ import textwrap
 
 def main():
 
-    mateo = pymysql.connect(user='root', password='123456789',host='mydbdiseno2.crn0fxtqoene.us-east-1.rds.amazonaws.com', database='dbsyrus')
+    db = pymysql.connect(user='root', password='123456789',host='mydbdiseno2.crn0fxtqoene.us-east-1.rds.amazonaws.com', database='dbsyrus')
 
-    cursor = mateo.cursor()
+    cursor = db.cursor()
 
-    insertar = ("INSERT INTO syrus" "(latitud, longitud, hora, timems)" "VALUES (%s, %s, %s, %s)")
+    insertar1 = ("INSERT INTO syrus_00_" "(latitud, longitud, hora, timems)" "VALUES (%s, %s, %s, %s)")
+    insertar2 = ("INSERT INTO syrus_01_" "(latitud, longitud, hora, timems)" "VALUES (%s, %s, %s, %s)")
 
     conn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     conn.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
@@ -25,6 +26,7 @@ def main():
         data = raw_data.decode("utf-8")
         if data[0:4] == ">REV":
             print("EL DATO QUE LLEGO "+data)
+            # id=data[ : ]
             lat = (data[16:19]+"."+data[19:24])
             lon = (data[24:28] + "." + data[28:33])
             segundo = int(float(data[11:16]) - (5 * 60 * 60))  # GMZ -5
@@ -44,7 +46,6 @@ def main():
                 H = int(segundo / (60 * 60))
                 M = int((segundo / 60)-(H*60))
                 S = int(segundo - (H*60*60) - (M*60))
-
 
             S = str(S)
             M = str(M)
@@ -79,11 +80,11 @@ def main():
             cursor.execute(insertar, base)
 
             # Make sure data is committed to the database
-            mateo.commit()
+            db.commit()
         else:
             print("")
 
             #cursor.close()
-            #mateo.close()
+            #db.close()
 
 main()

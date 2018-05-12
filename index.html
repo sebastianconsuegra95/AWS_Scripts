@@ -38,7 +38,7 @@
       <a class="navbar-brand" style="font-size:35px ; font-family:sans-serif" onclick="locationReload()" href="#">AquiToy
         <img style="width:35px" src="img/logo.svg">
       </a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive"
+      <button class="navbar-toggler" type="button" data[syrus]-toggle="collapse" data[syrus]-target="#navbarResponsive" aria-controls="navbarResponsive"
         aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -64,11 +64,15 @@
 
   <script>
     var client = httpclient();
-    var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
+    var flightPlanCoordinates1 = []; // Definicion para vector de puntos en polilinea
+    var flightPlanCoordinates2 = []; // Definicion para vector de puntos en polilinea
     var vectorURLPoints = [];
     var stateSystem = []
-    var data = []
+    var data = [[], []]
+    var colorLine=["#FF00FF","#0000FF"]
+
     var icon = '/img/iconpin.png'
+    var string_syrus = []
 
     function navHistoricalPage() {
       window.location.href = "/pages/historial.html";
@@ -82,7 +86,8 @@
       var bandera = 1; //Bandera para inicializar mapa en centro junto con animacion DROP
 
       // Inicializacion de Variables Google Maps
-      var marker = new google.maps.Marker({});
+      var marker1 = new google.maps.Marker({});
+      var marker2 = new google.maps.Marker({});
       var trafficLayer = new google.maps.TrafficLayer();
       var map = new google.maps.Map(document.getElementById('map'), {
         zoom: 14,
@@ -94,74 +99,110 @@
       setInterval(getter, 9000);
 
       function getter() {
-        // Traduccion de archivo php a script
-        stateSystem = data[3];
-        var infodb = function () {
-          var temporal = null;
-          $.ajax({
-            'async': false,
-            'type': "POST",
-            'global': false,
-            'dataType': 'html',
-            'url': "get.php",
-            'success': function (data) {
-              temporal = data;
-            }
-          });
-          return temporal;
-        }();
-        if (infodb == null) {
-          infodb = "";
-        }
-        data = infodb.split("\n")
-        //Definimos si el sistema se encuentra online o offline
-        var algo = document.createElement('div');
-        if ((data[3] == stateSystem) && (stateSystem)) {
-          console.log('sistema apagado', data[3], stateSystem)
-          var text = 'Offline'
-          icon = '/img/iconpin.png'
-        } else if (stateSystem) {
-          console.log('sistema encendido', data[3], stateSystem)
-          var text = 'Online'
-          icon = ''
-        }
+        for (let syrus = 0; syrus < 2; syrus++) {
+          string_syrus = "syrus_0"
+          string_syrus = string_syrus.concat(syrus, '_')
+          console.log(string_syrus)
 
-        var uluru = { lat: Number(data[0]), lng: Number(data[1]) }; // Posicion geografica
-        flightPlanCoordinates.push(uluru)
-        if (bandera == 1) { //Inicializacion para centro de mapa en marcador
-          map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 14,
-            center: uluru
-          });
-          trafficLayer.setMap(map) // Encendemos la vizualizacion de trafico
-          // Seccion para inicializar boton en mapa google
-          var centerControlDiv = document.createElement('div');
-          var centerControl = new CenterControl(centerControlDiv, map, trafficLayer);
-          centerControlDiv.index = 1;
-          map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
+          // Traduccion de archivo php a script
+          stateSystem[syrus] = data[syrus][3];
+          var infodb = function () {
+            var temporal = null;
+            $.ajax({
+              'async': false,
+              'type': "POST",
+              'global': false,
+              'dataType': 'html',
+              'data': { syrus: string_syrus },
+              'url': "get.php",
+              'success': function (data) {
+                temporal = data;
+              }
+            });
+            return temporal;
+          }();
+          if (infodb == null) {
+            infodb = "";
+          }
+          data[syrus] = infodb.split("\n")
+          console.log(data[syrus])
+          //Definimos si el sistema se encuentra online o offline
+          var algo = document.createElement('div');
+          if ((data[syrus][3] == stateSystem[syrus]) && (stateSystem[syrus])) {
+            console.log('sistema apagado', data[syrus][3], stateSystem[syrus])
+            var text = 'Offline'
+            icon = '/img/iconpin.png'
+          } else if (stateSystem[syrus]) {
+            console.log('sistema encendido', data[syrus][3], stateSystem[syrus])
+            var text = 'Online'
+            icon = ''
+          }
+
+          var uluru = {
+            lat: Number(data[syrus][0]),
+            lng: Number(data[syrus][1])
+          } // Posicion geografica
+
+          if (bandera == 1) { //Inicializacion para centro de mapa en marcador
+            map = new google.maps.Map(document.getElementById('map'), {
+              zoom: 14,
+              center: uluru
+            });
+            trafficLayer.setMap(map) // Encendemos la vizualizacion de trafico
+            // Seccion para inicializar boton en mapa google
+            var centerControlDiv = document.createElement('div');
+            var centerControl = new CenterControl(centerControlDiv, map, trafficLayer);
+            centerControlDiv.index = 1;
+            map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
+          }
+
+          if (syrus == 0) {
+            marker1.setMap(null);
+            marker1 = new google.maps.Marker({ // Marcador 
+              position: uluru,
+              map: map,
+              title: 'Syrus 00',
+              icon: icon
+            });
+          } else {
+            marker2.setMap(null);
+            marker2 = new google.maps.Marker({ // Marcador 
+              position: uluru,
+              map: map,
+              title: 'Syrus 01',
+              icon: icon
+            });
+          }
+
+          if ((bandera == 1) && (syrus == 0)) { // Inicializacion para animacion DROP 
+            marker1.setAnimation(google.maps.Animation.DROP)
+          } else if ((bandera == 1) && (syrus == 1)) {
+            marker2.setAnimation(google.maps.Animation.DROP)
+          }
+
+          if (syrus == 0) {
+            flightPlanCoordinates1.push(uluru)
+            var flightPath1 = new google.maps.Polyline({ // Parametros de entrada para Polilinea
+              path: flightPlanCoordinates1,
+              geodesic: true,
+              strokeColor: '#FF0000',
+              strokeOpacity: 1.0,
+              strokeWeight: 2
+            });
+            flightPath1.setMap(map);
+          } else {
+            flightPlanCoordinates2.push(uluru)
+            var flightPath2 = new google.maps.Polyline({ // Parametros de entrada para Polilinea
+              path: flightPlanCoordinates2,
+              geodesic: true,
+              strokeColor: colorLine[syrus],
+              strokeOpacity: 1.0,
+              strokeWeight: 2
+            });
+            flightPath2.setMap(map);
+          }
         }
-        marker.setMap(null);
-        marker = new google.maps.Marker({ // Marcador 
-          position: uluru,
-          map: map,
-          title: 'AquiToy',
-          icon: icon
-        });
-
-        if (bandera == 1) { // Inicializacion para animacion DROP 
-          marker.setAnimation(google.maps.Animation.DROP)
-          bandera = 0;
-        }
-
-        var flightPath = new google.maps.Polyline({ // Parametros de entrada para Polilinea
-          path: flightPlanCoordinates,
-          geodesic: true,
-          strokeColor: '#FF0000',
-          strokeOpacity: 1.0,
-          strokeWeight: 2
-        });
-        flightPath.setMap(map);
-
+        bandera = 0;
       }
     }
   </script>

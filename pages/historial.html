@@ -90,12 +90,18 @@
             <div>
                 Digite la ventana de tiempo
             </div>
-            <button onclick="generateSTcode()">Enviar</button>
+            <button onclick="generateHistoricalData()">Ver</button>
             <button onclick="startSimulation()">Simulación</button>
             <input type="text" id="date1" style="border-radius:8px;width:130px; text-align:center" />
             <input type="text" id="time1" style="border-radius:8px;width:80px; text-align:center" /> a
             <input type="text" id="date2" style="border-radius:8px;width:130px;text-align:center" />
             <input type="text" id="time2" style="border-radius:8px;width:80px;text-align:center" />
+            <select id="valueSyrus">
+                <option value="syrus_00_">Carro 1</option>
+                <option value="syrus_01_">Carro 2</option>
+                <option value="todos">Todos</option>
+
+            </select>
 
         </div>
     </nav>
@@ -139,12 +145,14 @@
         var date_2_DrawTime = []
         var valuesLat = []
         var valuesLng = []
+        var BanderaSyrus = 0
+        var selectedSyrus = []
 
         function navTimeRealPage() {
             window.location.href = '../index.html'
         }
 
-        function generateSTcode() {
+        function generateHistoricalData() {
             window.clearInterval(windowSimulation)
             flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
             theurl = []; //Url para request
@@ -162,6 +170,10 @@
 
             var TIME_2 = new Date($("#time2").timepicker("getTime"))
             var time_2 = [TIME_2.getHours(), TIME_2.getMinutes()]
+
+            var t = document.getElementById("valueSyrus")
+            selectedSyrus = t.options[t.selectedIndex].value
+
 
             //IF para no correr la funcion hasta que se encuentren todos los argumentos necesarios
             if (($("#date1").val()) && ($("#date2").val()) && ($("#time1").val()) && ($("#time2").val())) {
@@ -183,6 +195,11 @@
 
             console.log(date_1_UTC, date_2_UTC)
 
+            if ((selectedSyrus == "todos") && (BanderaSyrus == 0)) {
+                BanderaSyrus = 1;
+                selectedSyrus = "syrus_00_"
+            }
+
             // Traduccion de archivo php a script
             var infodb = function () {
                 var temporal = null;
@@ -191,7 +208,7 @@
                     'type': "POST",
                     'global': false,
                     'dataType': 'html',
-                    'data': { posttimems1: date_1_UTC, posttimems2: date_2_UTC },
+                    'data': { posttimems1: date_1_UTC, posttimems2: date_2_UTC, syrus: selectedSyrus },
                     'url': "../historicalGet.php",
                     'success': function (data, data2) {
                         temporal = data;
@@ -259,19 +276,23 @@
                 zoom: 15,
                 center: center
             });
-
+            if (selectedSyrus == "syrus_00_") {
+                var letra = ["A1", "B1"]
+            } else {
+                var letra = ["A2", "B2"]
+            }
             var startMarker = new google.maps.Marker({
                 position: startMarkerPosition,
                 map: map,
                 animation: google.maps.Animation.DROP,
-                label: 'A'
+                label: letra[0],
             })
 
             var endMarker = new google.maps.Marker({
                 position: endMarkerPosition,
                 map: map,
                 animation: google.maps.Animation.DROP,
-                label: 'B'
+                label: letra[1]
             })
 
             // With Google Roads API
@@ -370,6 +391,13 @@
             var zoom = calculateZoom([{ lat: pointBottomLeft[0], lng: pointBottomLeft[1] }, { lat: pointTopRight[0], lng: pointTopRight[1] }], mapDim, $mapDiv)
             console.log(zoom)
             map.setZoom(zoom)
+
+            if (BanderaSyrus == 1) {
+                BanderaSyrus = 2;
+                selectedSyrus = "syrus_01_"
+                restartVariable()
+                generateHistoricalData(selectedSyrus)
+            }
         }
 
         function startSimulation() { //Correr animacion 
@@ -381,6 +409,25 @@
                 icons[0].offset = (count / 4) + '%';
                 flightPathTemporal.set('icons', icons);
             }, 25);
+        }
+
+        function restartVariable() {
+            var client = httpclient(); // Request for google roads api
+            var k = 0
+            var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
+            var bandera = 0; //Bandera para centrar mapa en mitad de recorrido historico
+            var theurl = [];
+            var data = [[], []] //Array Multi for save historical data (lat, lng)
+            var flightPath = []
+            var flightPathTemporal = []
+            var windowSimulation = []
+            var temporal = []
+            var map = []
+            var date_1_DrawTime = []
+            var date_2_DrawTime = []
+            var valuesLat = []
+            var valuesLng = []
+            return
         }
 
     </script>

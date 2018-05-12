@@ -13,8 +13,9 @@ def main():
 
     cursor = db.cursor()
 
-    insertar1 = ("INSERT INTO syrus_00_" "(latitud, longitud, hora, timems)" "VALUES (%s, %s, %s, %s)")
-    insertar2 = ("INSERT INTO syrus_01_" "(latitud, longitud, hora, timems)" "VALUES (%s, %s, %s, %s)")
+    #insertar = ("INSERT INTO syrus_00_" "(latitud, longitud, hora, timems)" "VALUES (%s, %s, %s, %s)")
+   
+            
 
     conn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     conn.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
@@ -24,11 +25,13 @@ def main():
     while True:
         raw_data,addr = conn.recvfrom(65536)
         data = raw_data.decode("utf-8")
+        print(data)
+        
         if data[0:4] == ">REV":
-            print("EL DATO QUE LLEGO "+data)
-            # id=data[ : ]
+            # print("EL DATO QUE LLEGO "+data)
             lat = (data[16:19]+"."+data[19:24])
             lon = (data[24:28] + "." + data[28:33])
+            ID=str(data[45:(len(data)-3)])
             segundo = int(float(data[11:16]) - (5 * 60 * 60))  # GMZ -5
             dias = int(float(data[10:11]))
             fecha = int(float(data[6:10]))
@@ -66,17 +69,18 @@ def main():
             dias = str(dias)
 
             date2time=datetime(int(Year),int(Month),int(Day),int(H),int(M),int(S))
-            print(date2time)
+            # print(date2time)
 
             # En esta seccion se comvierte la fecha en el formato UTC para hacer las comparaciones.
             # Se hace recorte del string ya que la DB solo admite 11 caracteres de INT
             timems=int((date2time - datetime(1969, 12, 31,19,00,00)).total_seconds()*1000)
             timems=str(timems)
-            print(timems)
+            # print(timems)
             timems=int(timems[0:len(timems)-3])
-            print(timems)
+            # print(timems)
             base = (lat, lon, hora,timems)
 
+            insertar = ("INSERT INTO "+ID+"" "(latitud, longitud, hora, timems)" "VALUES (%s, %s, %s, %s)")
             cursor.execute(insertar, base)
 
             # Make sure data is committed to the database

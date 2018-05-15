@@ -12,11 +12,7 @@ def main():
     db = pymysql.connect(user='root', password='123456789',host='mydbdiseno2.crn0fxtqoene.us-east-1.rds.amazonaws.com', database='dbsyrus')
 
     cursor = db.cursor()
-
-    #insertar = ("INSERT INTO syrus_00_" "(latitud, longitud, hora, timems)" "VALUES (%s, %s, %s, %s)")
    
-            
-
     conn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     conn.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
     HOST = "172.31.90.245"  
@@ -25,13 +21,13 @@ def main():
     while True:
         raw_data,addr = conn.recvfrom(65536)
         data = raw_data.decode("utf-8")
-        print(data)
+        #print(data[7:9])
         
         if data[0:4] == ">REV":
-            # print("EL DATO QUE LLEGO "+data)
+            print("EL DATO QUE LLEGO "+data)
             lat = (data[16:19]+"."+data[19:24])
             lon = (data[24:28] + "." + data[28:33])
-            ID=str(data[45:(len(data)-3)])
+            ID=str(data[(len(data)-3-9):(len(data)-3)])
             segundo = int(float(data[11:16]) - (5 * 60 * 60))  # GMZ -5
             dias = int(float(data[10:11]))
             fecha = int(float(data[6:10]))
@@ -59,7 +55,6 @@ def main():
             if len(S) == 1:
                 S="0"+S
                 
-
             fecha2 = fecha.strftime('%m/%d/%Y')
             Month = fecha.strftime('%m')
             Day   = fecha.strftime('%d')
@@ -85,9 +80,31 @@ def main():
 
             # Make sure data is committed to the database
             db.commit()
-        else:
-            print("")
+        
+        if data[7:9] == "NO":
+            print("Mostrando Error:   "+data)
 
+        if data[7:9] == "41":
+            print("Mostrando RPM:     "+data)
+            ID=str(data[(len(data)-3-9):(len(data)-3)])
+            rpm=data[12:18]
+            rpm=rpm.replace(" ","")
+            rpm=int(rpm,16)
+            rpm=rpm/4
+            if rpm < 300:
+                rpm="0"
+            else:
+                rpm=str(rpm)
+            print(rpm)
+            cursor.execute("SELECT MAX(id) FROM "+ID)
+            id_MySQL=cursor.fetchall()
+            id_MySQL=str(id_MySQL[0])
+            id_MySQL=id_MySQL.split(",")
+            id_MySQL=id_MySQL[0]
+            id_MySQL=id_MySQL[1:len(id_MySQL)]
+            cursor.execute("UPDATE "+ID+" SET rpm = "+rpm+" WHERE id = "+id_MySQL)
+            db.commit()
+      
             #cursor.close()
             #db.close()
 

@@ -129,7 +129,6 @@
     </script>
 
     <script>
-
         var client = httpclient(); // Request for google roads api
         var k = 0
         var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
@@ -153,6 +152,7 @@
         }
 
         function generateHistoricalData() {
+            restartVariable()
             window.clearInterval(windowSimulation)
             flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
             theurl = []; //Url para request
@@ -198,7 +198,11 @@
             if ((selectedSyrus == "todos") && (BanderaSyrus == 0)) {
                 BanderaSyrus = 1;
                 selectedSyrus = "syrus_00_"
+            } else if (BanderaSyrus == 2) {
+                BanderaSyrus = 0
+                selectedSyrus = "syrus_01_"
             }
+            console.log(selectedSyrus)
 
             // Traduccion de archivo php a script
             var infodb = function () {
@@ -254,8 +258,6 @@
         }
 
         function initMap() {
-            var startMarker = new google.maps.Marker({});
-            var endMarker = new google.maps.Marker({});
             var center = { lat: 10.986532, lng: -74.809226 }
             var startMarkerPosition = { lat: 0, lng: 0 }
             var endMarkerPosition = { lat: 0, lng: 0 }
@@ -277,42 +279,76 @@
                 center: center
             });
             if (selectedSyrus == "syrus_00_") {
-                var letra = ["A1", "B1"]
-            } else {
-                var letra = ["A2", "B2"]
-            }
-            var startMarker = new google.maps.Marker({
-                position: startMarkerPosition,
-                map: map,
-                animation: google.maps.Animation.DROP,
-                label: letra[0],
-            })
+                var startMarker00 = new google.maps.Marker({});
+                var endMarker00 = new google.maps.Marker({});
+                var letra2 = ["A1", "B1"]
+                console.log(temporal)
+                startMarker00 = new google.maps.Marker({
+                    position: center,
+                    map: map,
+                    animation: google.maps.Animation.DROP,
+                    label: letra2[0],
+                })
 
-            var endMarker = new google.maps.Marker({
-                position: endMarkerPosition,
-                map: map,
-                animation: google.maps.Animation.DROP,
-                label: letra[1]
-            })
+                endMarker00 = new google.maps.Marker({
+                    position: endMarkerPosition,
+                    map: map,
+                    animation: google.maps.Animation.DROP,
+                    label: letra2[1]
+                })
+            } else {
+                var startMarker01 = new google.maps.Marker({});
+                var endMarker01 = new google.maps.Marker({});
+                var letra = ["A2", "B2"]
+                console.log(letra)
+                startMarker01 = new google.maps.Marker({
+                    position: startMarkerPosition,
+                    map: map,
+                    animation: google.maps.Animation.DROP,
+                    label: letra[0],
+                })
+
+                endMarker01 = new google.maps.Marker({
+                    position: endMarkerPosition,
+                    map: map,
+                    animation: google.maps.Animation.DROP,
+                    label: letra[1]
+                })
+            }
+
+            // startMarker00 = new google.maps.Marker({
+            //     position: startMarkerPosition,
+            //     map: map,
+            //     animation: google.maps.Animation.DROP,
+            //     label: letra[0],
+            // })
+
+            // endMarker00 = new google.maps.Marker({
+            //     position: endMarkerPosition,
+            //     map: map,
+            //     animation: google.maps.Animation.DROP,
+            //     label: letra[1]
+            // })
 
             // With Google Roads API
             if (bandera == 1) {
                 //Ciclo for para hacer request con ventanas de 100 puntos
-                for (let j = 0; j < k; j++) {
-                    var TheURL = theurl[j].concat("&interpolate=true&key=AIzaSyBNPUIW6WUc1Cg5sQfivG0loxKZj1Bn9zE")
-                    client.get(TheURL, function (response) {
-                        var response1 = JSON.parse(response);
-                        for (let i = 0; i < response1.snappedPoints.length; i++) {
-                            flightPlanCoordinates.push({
-                                lat: response1.snappedPoints[i].location.latitude,
-                                lng: response1.snappedPoints[i].location.longitude
-                            })
-                        }
-                        if (j == k - 1) {
-                            drawPolylines(flightPlanCoordinates, temporal, valuesLat, valuesLng)
-                        }
-                    })
-                }
+                // for (let j = 0; j < k; j++) {
+                //     var TheURL = theurl[j].concat("&interpolate=true&key=AIzaSyBNPUIW6WUc1Cg5sQfivG0loxKZj1Bn9zE")
+                //     client.get(TheURL, function (response) {
+                //         var response1 = JSON.parse(response);
+                //         for (let i = 0; i < response1.snappedPoints.length; i++) {
+                //             flightPlanCoordinates.push({
+                //                 lat: response1.snappedPoints[i].location.latitude,
+                //                 lng: response1.snappedPoints[i].location.longitude
+                //             })
+                //         }
+                //         if (j == k - 1) {
+                //             drawPolylines(flightPlanCoordinates, temporal, valuesLat, valuesLng)
+                //         }
+                //     })
+                // }
+                drawPolylines(flightPlanCoordinates, temporal, valuesLat, valuesLng)
                 bandera = 0;
             }
 
@@ -412,22 +448,42 @@
         }
 
         function restartVariable() {
-            var client = httpclient(); // Request for google roads api
-            var k = 0
-            var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
-            var bandera = 0; //Bandera para centrar mapa en mitad de recorrido historico
-            var theurl = [];
-            var data = [[], []] //Array Multi for save historical data (lat, lng)
-            var flightPath = []
-            var flightPathTemporal = []
-            var windowSimulation = []
-            var temporal = []
-            var map = []
-            var date_1_DrawTime = []
-            var date_2_DrawTime = []
-            var valuesLat = []
-            var valuesLng = []
+            // var client = httpclient(); // Request for google roads api
+            // var k = 0
+            // var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
+            // var bandera = 0; //Bandera para centrar mapa en mitad de recorrido historico
+            // var theurl = [];
+            // var data = [[], []] //Array Multi for save historical data (lat, lng)
+            // var flightPath = []
+            // var flightPathTemporal = []
+            // var windowSimulation = []
+            // var temporal = []
+            // var date_1_DrawTime = []
+            // var date_2_DrawTime = []
+            // var valuesLat = []
+            // var valuesLng = []
             return
+        }
+
+        function restartVariable2() {
+            // var client = httpclient(); // Request for google roads api
+            // var k = 0
+            // var flightPlanCoordinates = []; // Definicion para vector de puntos en polilinea
+            // var bandera = 0; //Bandera para centrar mapa en mitad de recorrido historico
+            // var theurl = [];
+            // var data = [[], []] //Array Multi for save historical data (lat, lng)
+            // var flightPath = []
+            // var flightPathTemporal = []
+            // var windowSimulation = []
+            // var temporal = []
+            // var map = []
+            // var date_1_DrawTime = []
+            // var date_2_DrawTime = []
+            // var valuesLat = []
+            // var valuesLng = []
+            // var BanderaSyrus = 0
+            // var selectedSyrus = []
+            // return
         }
 
     </script>

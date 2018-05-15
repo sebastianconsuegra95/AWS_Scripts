@@ -9,6 +9,8 @@
   <!-- <link rel="stylesheet" href="/resources/demos/style.css"> -->
   <script src="http.js"></script>
   <script src="traffic.js"></script>
+  <script src="zoom.js"></script>
+
   <link rel="stylesheet" href="/css/webstyle.css">
   <style>
     /* Difinicion de Layout para google Maps  */
@@ -69,7 +71,12 @@
     var vectorURLPoints = [];
     var stateSystem = []
     var data = [[], []]
-    var colorLine=["#FF00FF","#0000FF"]
+    var colorLine = ["#FF00FF", "#0000FF"]
+    var contentString = [[], []]
+    var nombre = ["Carro 1", "Carro 2"]
+    var LatLng_01_ = []
+    var LatLng_00_ = []
+    var cont = 0;
 
     var icon = '/img/iconpin.png'
     var string_syrus = []
@@ -84,7 +91,6 @@
 
     function initMap() {
       var bandera = 1; //Bandera para inicializar mapa en centro junto con animacion DROP
-
       // Inicializacion de Variables Google Maps
       var marker1 = new google.maps.Marker({});
       var marker2 = new google.maps.Marker({});
@@ -96,7 +102,8 @@
 
       // Funcion para obtener valores de GET.PHP
       getter();
-      setInterval(getter, 9000);
+      getter();
+      setInterval(getter, 11000)
 
       function getter() {
         for (let syrus = 0; syrus < 2; syrus++) {
@@ -124,6 +131,7 @@
           if (infodb == null) {
             infodb = "";
           }
+          console.log(infodb)
           data[syrus] = infodb.split("\n")
           console.log(data[syrus])
           //Definimos si el sistema se encuentra online o offline
@@ -157,6 +165,24 @@
           }
 
           if (syrus == 0) {
+            var contentString1 = '<div id="content">' +
+              '<div id="siteNotice">' +
+              '</div>' +
+              '<h3 id="firstHeading" class="firstHeading">' + nombre[syrus] + '</h3>' +
+              '<div id="bodyContent">' +
+              '<p> <h7> <b>Latitud: </b>' + String(uluru.lat) + '</h7> </p>' +
+              '<p> <h7> <b>Longitud: </b>' + String(uluru.lng) + '</h7> </p>' +
+              '<p> <h7> <b> Fecha y hora: </b>' + data[syrus][2] + '</h7> </p>' +
+              '<p> <h7> <b>RPM: </b>' + String(data[syrus][4]) + '</h7> </p>' +
+              '</div>' +
+              '</div>';
+
+            var infowindow1 = new google.maps.InfoWindow({
+              content: contentString1
+            });
+
+            LatLng_00_ = uluru
+
             marker1.setMap(null);
             marker1 = new google.maps.Marker({ // Marcador 
               position: uluru,
@@ -164,13 +190,39 @@
               title: 'Syrus 00',
               icon: icon
             });
+
+            marker1.addListener('click', function () {
+              infowindow1.open(map, marker1);
+            });
           } else {
+            var contentString2 = '<div id="content">' +
+              '<div id="siteNotice">' +
+              '</div>' +
+              '<h3 id="firstHeading" class="firstHeading">' + nombre[syrus] + '</h3>' +
+              '<div id="bodyContent">' +
+              '<p> <h7> <b>Latitud: </b>' + String(uluru.lat) + '</h7> </p>' +
+              '<p> <h7> <b>Longitud: </b>' + String(uluru.lng) + '</h7> </p>' +
+              '<p> <h7> <b> Fecha y hora: </b>' + data[syrus][2] + '</h7> </p>' +
+              '<p> <h7> <b>RPM: </b>' + String(data[syrus][4]) + '</h7> </p>' +
+              '</div>' +
+              '</div>';
+
+            var infowindow2 = new google.maps.InfoWindow({
+              content: contentString2
+            });
+
+            LatLng_01_ = uluru
+
             marker2.setMap(null);
             marker2 = new google.maps.Marker({ // Marcador 
               position: uluru,
               map: map,
               title: 'Syrus 01',
               icon: icon
+            });
+
+            marker2.addListener('click', function () {
+              infowindow2.open(map, marker2);
             });
           }
 
@@ -202,6 +254,21 @@
             flightPath2.setMap(map);
           }
         }
+        cont = cont + 1;
+        if (cont == 2) {
+          var centro = {
+            lat: (LatLng_00_.lat + LatLng_01_.lat) / 2,
+            lng: (LatLng_00_.lng + LatLng_01_.lng) / 2
+          }
+          map.setCenter(centro)
+
+          var $mapDiv = $('#map');
+          var mapDim = { height: $mapDiv.height(), width: $mapDiv.width() };
+          var zoom = calculateZoom([LatLng_00_, LatLng_01_], mapDim, $mapDiv)
+          map.setZoom(zoom)
+          bandera2 = 0
+        }
+
         bandera = 0;
       }
     }
